@@ -66,6 +66,7 @@ const site = Astro.site!;
   <Breadcrumbs items={crumbs} />
 
   <div class="wrap pb-16 pt-4">
+    <p class="hidden print:block m-0 mb-2 text-sm">{new URL(unitPath(unit), site).href} · Call {dealership.phones.main} to check it’s still available.</p>
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="eyebrow m-0 text-red">{group.one} · Stock {unit.stockNumber}</p>
@@ -77,15 +78,15 @@ const site = Astro.site!;
           </ul>
         )}
       </div>
-      <nav aria-label="Other units" class="flex gap-2">
+      <nav aria-label="Other units" class="flex gap-2 print:hidden">
         <a href={unitPath(prev)} class="btn btn-secondary px-3" rel="prev">‹ Previous unit</a>
         <a href={unitPath(next)} class="btn btn-secondary px-3" rel="next">Next unit ›</a>
       </nav>
     </div>
 
-    <div class="mt-6 grid gap-8 lg:grid-cols-12">
+    <div class="mt-6 grid gap-8 lg:grid-cols-12 print:grid-cols-2 print:gap-4">
       <div class="lg:col-span-8">
-        <Gallery photos={photos} title={title} transitionName={`unit-${unit.slug}`} />
+        <div class="print-photo"><Gallery photos={photos} title={title} transitionName={`unit-${unit.slug}`} /></div>
       </div>
       <aside aria-label="Price and contact" class="lg:col-span-4">
         <div class="lg:sticky lg:top-4">
@@ -95,7 +96,7 @@ const site = Astro.site!;
     </div>
 
     {quick.length > 0 && (
-      <ul class="mt-10 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 lg:grid-cols-6" aria-label="Quick specs">
+      <ul class="mt-10 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 lg:grid-cols-6 print:hidden" aria-label="Quick specs">
         {quick.map(([label, value]) => (
           <li class="rounded border border-rule bg-paper p-3">
             <span class="block text-[0.9375rem] text-bark-60">{label}</span>
@@ -105,7 +106,7 @@ const site = Astro.site!;
       </ul>
     )}
 
-    <nav aria-label="On this page" class="mt-10 border-y border-rule">
+    <nav aria-label="On this page" class="mt-10 border-y border-rule print:hidden">
       <ul class="m-0 flex list-none flex-wrap gap-x-6 p-0">
         {unit.description && <li><a href="#overview" class="tap font-semibold">Overview</a></li>}
         <li><a href="#specs" class="tap font-semibold">Specs</a></li>
@@ -144,13 +145,13 @@ const site = Astro.site!;
         )}
 
         {unit.videoUrl && (
-          <p class="mt-8"><a href={unit.videoUrl} target="_blank" rel="noopener" class="tap font-semibold">Watch the walk-through video on YouTube<span class="sr-only"> (opens in a new tab)</span></a></p>
+          <p class="mt-8 print:hidden"><a href={unit.videoUrl} target="_blank" rel="noopener" class="tap font-semibold">Watch the walk-through video on YouTube<span class="sr-only"> (opens in a new tab)</span></a></p>
         )}
       </div>
     </div>
 
     {price !== undefined && unit.status !== 'sold' && (
-      <section id="payments" aria-labelledby="payments-h" class="mt-14 scroll-mt-4 rounded border border-rule bg-paper p-5 lg:p-8">
+      <section id="payments" aria-labelledby="payments-h" class="print:hidden mt-14 scroll-mt-4 rounded border border-rule bg-paper p-5 lg:p-8">
         <h2 id="payments-h" class="m-0 text-[1.75rem]">Work out a payment</h2>
         <span class="rule-orange mb-5 mt-2" aria-hidden="true"></span>
         <PaymentEstimator client:visible priceCad={price} aprPct={fees.estimator.exampleAprPct}
@@ -160,7 +161,7 @@ const site = Astro.site!;
       </section>
     )}
 
-    <section id="ask" aria-labelledby="ask-h" class="mt-14 scroll-mt-4 grid gap-8 lg:grid-cols-12">
+    <section id="ask" aria-labelledby="ask-h" class="print:hidden mt-14 scroll-mt-4 grid gap-8 lg:grid-cols-12">
       <div class="lg:col-span-4">
         <h2 id="ask-h" class="m-0 text-[1.75rem]">Ask about this unit</h2>
         <span class="rule-orange mt-2" aria-hidden="true"></span>
@@ -176,7 +177,7 @@ const site = Astro.site!;
     </section>
 
     {similar.length > 0 && (
-      <section aria-labelledby="similar-h" class="mt-16">
+      <section aria-labelledby="similar-h" class="mt-16 print:hidden">
         <h2 id="similar-h" class="m-0 text-[1.75rem]">Similar units</h2>
         <span class="rule-orange mb-5 mt-2" aria-hidden="true"></span>
         <ul class="m-0 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">

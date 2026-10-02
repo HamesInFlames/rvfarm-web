@@ -27,3 +27,8 @@ Not installed: gsap (deferred; only the optional set-piece needed it), wrangler 
 - `.claude/hooks/guard.ps1`: §5.4 verbatim. Piped-payload test on Oct 2: 10/10 cases as expected (force push, push to main, `rm -rf`, `.env` write, settings edit, `cat .env.local` blocked; feature push, build, `.astro` edit, `cat .env.example` allowed).
 - `.claude/agents/Explore.md`: §5.3 override, plus `tools: Read, Grep, Glob`.
 - Consequence: pushes to `main` are blocked by the hook; James merges.
+
+### 2026-10-02 — Inventory filter is plain TypeScript, not a React island (deviation from plan §3e)
+- **Context:** Lighthouse mobile on `/inventory`: LCP 2.84 s with the filter as a React island hydrating the card grid. The same page with the filter rendered statically: LCP 1.74 s.
+- **Decision:** cards are static HTML (UnitCard still renders through React at build time, zero client JS); the filter is server-rendered controls plus a ~3 KB script (`src/components/astro/InventoryFilter.astro`) that hides and re-orders the cards. Result: LCP 1.90 s, performance 99, CLS 0, 3 KB JS on listing pages. Behaviour covered by `tests/e2e/filter.spec.ts` (6 tests incl. no-JS).
+- **React stays** for the estimator, lead form and lightbox (below the fold, `client:visible`/`client:idle`).

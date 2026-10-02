@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* no-js:… utilities apply when the inline script in Base.astro hasn't run. */
+@custom-variant no-js (html:not(.js) &);
+
 /*
   RV Farm tokens (plan §3d). Red and orange sampled from logo v2 (brand #B80000, sun #F07A1C);
   text-safe red darkened to reach 7:1 with white. Neutrals from the vault plan §2.
@@ -136,6 +139,9 @@
   }
 }
 
+/* Controls that do nothing without JS (e.g. the inventory filter) are hidden then. */
+html:not(.js) .needs-js { display: none; }
+
 /* Native cross-document view transitions (Chromium/Safari); silent elsewhere. */
 @view-transition { navigation: auto; }
 
@@ -165,3 +171,19 @@ html[data-motion='reduce']::view-transition-group(*) { animation: none !importan
   .hero-kb { animation: hero-kb 16s ease-out 1 both; transform-origin: 60% 50%; }
 }
 @keyframes hero-kb { from { transform: scale(1); } to { transform: scale(1.06); } }
+
+/* Unit pages print as a spec sheet (plan §3g Phase 3): no chrome, black on white, price and specs kept. */
+@media print {
+  @page { margin: 12mm; }
+  html, body { background: #fff; font-size: 11pt; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: none; padding-inline: 0; }
+  .lg\:sticky { position: static !important; }
+  img { break-inside: avoid; }
+  table { break-inside: avoid; }
+  aside, main .lg:col-span-8, main .lg:col-span-4 { grid-column: auto !important; }
+  .print-photo img { max-height: 90mm; width: 100%; object-fit: cover; }
+  h1 { font-size: 22pt; }
+  h2 { font-size: 15pt; }
+  .mt-10, .mt-12, .mt-14, .mt-16 { margin-top: 6mm !important; }
+}

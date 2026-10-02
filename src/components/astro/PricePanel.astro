@@ -21,7 +21,7 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
 ---
 <div class="rounded border border-rule bg-white p-5 lg:p-6">
   <div class="flex flex-wrap items-center gap-3">
-    <span class:list={['rounded-sm px-2 py-0.5 text-sm font-semibold text-white', status[1]]}>{status[0]}</span>
+    <span class:list={['rounded-sm px-2 py-0.5 text-sm font-semibold text-white print:border print:border-ink print:text-ink', status[1]]}>{status[0]}</span>
     <span class="text-[0.9375rem] text-bark-60">Stock {unit.stockNumber}<Confirm note="Real stock number" /></span>
   </div>
 
@@ -52,25 +52,25 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
       {pay && pay.perPeriod > 0 && (
         <p class="m-0 mt-4">
           Est. <strong class="tabular">{formatCadCents(pay.perPeriod)}</strong> {FREQUENCY_LABEL[fees.estimator.frequency as Frequency]}*
-          <a href="#payments" class="tap flex">Work out your own payment</a>
+          <a href="#payments" class="tap flex print:hidden">Work out your own payment</a>
         </p>
       )}
 
-      <details class="mt-3 rounded border border-rule">
+      <details class="mt-3 rounded border border-rule" open>
         <summary class="flex min-h-11 cursor-pointer items-center px-3 font-semibold">Optional extras (not in the price)</summary>
         <ul class="m-0 list-none px-3 pb-3 text-[0.9375rem]">
           <li class="py-1">{fees.optional.warranty.label}: {formatCad(fees.optional.warranty.amountCadPerYear)} a year, up to {fees.optional.warranty.maxYears} years<Confirm note="Warranty provider, coverage, age limits" /></li>
           <li class="py-1">{fees.optional.delivery.label}: {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, or pick it up here<Confirm note="Delivery rate" /></li>
           <li class="py-1">Plates and permit (government fees): {formatCad(fees.plates.plateAndPermitCad)}</li>
         </ul>
-        {pricingHref && <p class="m-0 px-3 pb-3"><a href={pricingHref} class="tap">How our prices work</a></p>}
+        {pricingHref && <p class="m-0 px-3 pb-3 print:hidden"><a href={pricingHref} class="tap">How our prices work</a></p>}
       </details>
     </>
   ) : sold ? (
     <p class="m-0 mt-4 text-lead font-semibold">This unit has sold. Similar units are below, or call us: new trades and consignments come in all the time.</p>
   ) : null}
 
-  <div class="mt-5 grid gap-3">
+  <div class="mt-5 grid gap-3 print:hidden">
     <a href={telHref(dealership.phones.main)} class="btn btn-primary w-full text-lg tabular">Call {dealership.phones.main}</a>
     <a href="#ask" class="btn btn-secondary w-full">Ask a question or book a viewing</a>
     <a href={tradeHref} class="btn btn-secondary w-full">Trading in? Tell us what you have</a>

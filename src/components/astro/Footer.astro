@@ -19,7 +19,7 @@ const columns = variant === 'full'
 const legal = legalNav.filter((i) => routeExists(i.href));
 const d = dealership;
 ---
-<footer class="bg-bark text-sand pb-24 lg:pb-0">
+<footer class="bg-bark text-sand pb-24 lg:pb-0 print:hidden">
   {variant === 'full' && (
   <div class="wrap grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-12">
     <section aria-labelledby="footer-contact" class="lg:col-span-5">

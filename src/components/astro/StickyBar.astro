@@ -18,7 +18,7 @@ const icons: Record<string, string> = {
   list: 'M4 6h16M4 12h16M4 18h16',
 };
 ---
-<nav aria-label="Quick actions" class="lg:hidden fixed inset-x-0 bottom-0 z-30 bg-white border-t border-rule shadow-[0_-2px_8px_rgb(0_0_0/0.12)] pb-[env(safe-area-inset-bottom)]">
+<nav aria-label="Quick actions" class="print:hidden lg:hidden fixed inset-x-0 bottom-0 z-30 bg-white border-t border-rule shadow-[0_-2px_8px_rgb(0_0_0/0.12)] pb-[env(safe-area-inset-bottom)]">
   <ul class="grid list-none m-0 p-0" style={`grid-template-columns: repeat(${items.length}, minmax(0, 1fr))`}>
     {items.map((item, i) => (
       <li>

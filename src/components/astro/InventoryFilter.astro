@@ -1,0 +1,211 @@
+---
+// Inventory filter and sort (plan §1 row 4). Server-rendered controls plus a small script, no React: the unit cards
+// are static HTML and this only shows, hides and re-orders them by their data-slug. (A React island here cost
+// ~1 s of mobile LCP; see tasks/decisions.md.) State lives in the URL (?q=&max=&sleeps=&make=&sort=).
+// Without JS the controls are hidden (.needs-js) and every unit stays listed; type filtering is done by the
+// static type pages.
+interface FilterUnit { slug: string; price?: number; sleeps?: number; make: string; year: number; lengthFt?: number; keywords: string }
+interface Props { units: FilterUnit[]; gridId: string; emptyId: string; countId: string }
+const { units, gridId, emptyId, countId } = Astro.props;
+
+const PRICE_STEPS = [10_000, 15_000, 20_000, 30_000, 50_000].filter((n) => units.some((u) => u.price !== undefined && u.price <= n));
+const SLEEP_STEPS = [2, 4, 6];
+const hasSleeps = units.filter((u) => u.sleeps).length >= units.length * 0.6;
+const makes = [...new Set(units.map((u) => u.make))].sort();
+const SORTS = [
+  ['newest', 'Newest on the lot'], ['price-asc', 'Price: low to high'], ['price-desc', 'Price: high to low'],
+  ['year-desc', 'Year: newest first'], ['length-desc', 'Length: longest first'],
+];
+const field = 'block w-full min-h-12 rounded border-2 border-bark/40 bg-white px-3 text-[1.0625rem] text-ink';
+const legend = 'mb-1 block font-semibold text-ink';
+const k = (n: number) => `$${n / 1000}k`;
+---
+<div class="needs-js" data-filter data-grid={gridId} data-empty={emptyId} data-count={countId}>
+  <script type="application/json" data-filter-units set:html={JSON.stringify(units)} />
+  <div data-chips class="mb-4 flex flex-wrap items-center gap-2" hidden></div>
+  <button type="button" data-toggle aria-expanded="false" aria-controls="filter-form"
+    class="flex min-h-12 w-full items-center justify-between rounded border border-rule bg-paper px-4 font-semibold text-ink lg:hidden">
+    <span>Filter and sort <span data-toggle-count></span></span><span aria-hidden="true">▾</span>
+  </button>
+  <form id="filter-form" role="search" aria-label="Filter units" class="mt-3 hidden gap-5 rounded border border-rule bg-paper p-4 data-[open]:grid lg:mt-0 lg:grid lg:border-0 lg:bg-transparent lg:p-0">
+    <div>
+      <label for="f-q" class={legend}>Search</label>
+      <input id="f-q" name="q" type="search" placeholder="e.g. bunkhouse under $20k" class={field} />
+    </div>
+    <div>
+      <label for="f-sort" class={legend}>Sort by</label>
+      <select id="f-sort" name="sort" class={field}>
+        {SORTS.map(([v, l]) => <option value={v}>{l}</option>)}
+      </select>
+    </div>
+    <fieldset class="m-0 border-0 p-0">
+      <legend class={legend}>Price, before HST</legend>
+      {['', ...PRICE_STEPS].map((v) => (
+        <label class="flex min-h-11 cursor-pointer items-center gap-3" data-option="max" data-value={v}>
+          <input type="radio" name="max" value={v} class="size-5 accent-red" checked={v === ''} />
+          <span>{v ? `Under ${k(v as number)}` : 'Any price'} <span class="text-bark-60" data-n></span></span>
+        </label>
+      ))}
+    </fieldset>
+    {hasSleeps && (
+      <fieldset class="m-0 border-0 p-0">
+        <legend class={legend}>Sleeps</legend>
+        {['', ...SLEEP_STEPS].map((v) => (
+          <label class="flex min-h-11 cursor-pointer items-center gap-3" data-option="sleeps" data-value={v}>
+            <input type="radio" name="sleeps" value={v} class="size-5 accent-red" checked={v === ''} />
+            <span>{v ? `${v} or more` : 'Any'} <span class="text-bark-60" data-n></span></span>
+          </label>
+        ))}
+      </fieldset>
+    )}
+    {makes.length > 1 && (
+      <div>
+        <label for="f-make" class={legend}>Make</label>
+        <select id="f-make" name="make" class={field}>
+          <option value="" data-label="All makes">All makes</option>
+          {makes.map((m) => <option value={m} data-label={m}>{m}</option>)}
+        </select>
+      </div>
+    )}
+  </form>
+</div>
+
+<script>
+  interface Unit { slug: string; price?: number; sleeps?: number; make: string; year: number; lengthFt?: number; keywords: string }
+  interface State { q: string; max: number | null; sleeps: number | null; make: string; sort: string }
+  const SORTS = ['newest', 'price-asc', 'price-desc', 'year-desc', 'length-desc'];
+
+  /** "bunkhouse under $20k" → words ["bunkhouse"] + max 20000. */
+  function parseQuery(q: string) {
+    let max: number | null = null;
+    const rest = q.toLowerCase().replace(/under\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(k)?/g, (_, n: string, kk?: string) => {
+      max = Math.round(parseFloat(n.replace(',', '')) * (kk ? 1000 : 1));
+      return ' ';
+    });
+    return { words: rest.split(/\s+/).filter((w) => w.length > 1), max: max as number | null };
+  }
+
+  function matches(u: Unit, s: State) {
+    const { words, max: qMax } = parseQuery(s.q);
+    const max = s.max ?? qMax;
+    if (words.some((w) => !u.keywords.includes(w))) return false;
+    if (max && (u.price === undefined || u.price > max)) return false;
+    if (s.sleeps && (u.sleeps ?? 0) < s.sleeps) return false;
+    if (s.make && u.make !== s.make) return false;
+    return true;
+  }
+
+  const compare: Record<string, (a: Unit, b: Unit) => number> = {
+    newest: () => 0,
+    'price-asc': (a, b) => (a.price ?? Infinity) - (b.price ?? Infinity),
+    'price-desc': (a, b) => (b.price ?? -1) - (a.price ?? -1),
+    'year-desc': (a, b) => b.year - a.year,
+    'length-desc': (a, b) => (b.lengthFt ?? 0) - (a.lengthFt ?? 0),
+  };
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-filter]')) {
+    const units: Unit[] = JSON.parse(root.querySelector('[data-filter-units]')!.textContent!);
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    const grid = document.getElementById(root.dataset.grid!)!;
+    const empty = document.getElementById(root.dataset.empty!);
+    const countEl = document.getElementById(root.dataset.count!);
+    const chipsEl = root.querySelector<HTMLElement>('[data-chips]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')!;
+    const items = new Map([...grid.querySelectorAll<HTMLLIElement>(':scope > li[data-slug]')].map((li) => [li.dataset.slug!, li]));
+
+    const num = (v: string | null) => (v && !Number.isNaN(Number(v)) ? Number(v) : null);
+    const p = new URLSearchParams(location.search);
+    let s: State = {
+      q: p.get('q') ?? '',
+      max: num(p.get('max')),
+      sleeps: num(p.get('sleeps')),
+      make: p.get('make') ?? '',
+      sort: SORTS.includes(p.get('sort') ?? '') ? p.get('sort')! : 'newest',
+    };
+
+    function syncControls() {
+      (form.elements.namedItem('q') as HTMLInputElement).value = s.q;
+      (form.elements.namedItem('sort') as HTMLSelectElement).value = s.sort;
+      const make = form.elements.namedItem('make') as HTMLSelectElement | null;
+      if (make) make.value = s.make;
+      for (const r of form.querySelectorAll<HTMLInputElement>('input[type=radio]')) {
+        const cur = r.name === 'max' ? s.max : s.sleeps;
+        r.checked = r.value === (cur === null ? '' : String(cur));
+      }
+    }
+
+    function render() {
+      const shown = units.filter((u) => matches(u, s)).sort(compare[s.sort]);
+      const visible = new Set(shown.map((u) => u.slug));
+      for (const [slug, li] of items) li.hidden = !visible.has(slug);
+      for (const u of s.sort === 'newest' ? units : shown) { const li = items.get(u.slug); if (li) grid.appendChild(li); }
+      empty?.toggleAttribute('hidden', shown.length > 0);
+      if (countEl) countEl.textContent = `Showing ${shown.length} of ${units.length}`;
+
+      // Facet counts: how many would show with this option, keeping the other filters. Hide empty options.
+      const count = (patch: Partial<State>) => units.filter((u) => matches(u, { ...s, ...patch })).length;
+      for (const opt of form.querySelectorAll<HTMLElement>('[data-option]')) {
+        const key = opt.dataset.option as 'max' | 'sleeps';
+        const value = num(opt.dataset.value ?? '');
+        const n = count({ [key]: value });
+        opt.querySelector('[data-n]')!.textContent = `(${n})`;
+        opt.hidden = value !== null && n === 0 && s[key] !== value;
+      }
+      const make = form.elements.namedItem('make') as HTMLSelectElement | null;
+      if (make) for (const o of make.options) o.textContent = `${o.dataset.label} (${count({ make: o.value })})`;
+
+      // Applied-filter chips with remove buttons.
+      const chips: [string, Partial<State>][] = [];
+      if (s.q) chips.push([`“${s.q}”`, { q: '' }]);
+      if (s.max) chips.push([`Under $${s.max / 1000}k`, { max: null }]);
+      if (s.sleeps) chips.push([`Sleeps ${s.sleeps}+`, { sleeps: null }]);
+      if (s.make) chips.push([s.make, { make: '' }]);
+      chipsEl.hidden = chips.length === 0;
+      chipsEl.replaceChildren(
+        ...(chips.length ? [Object.assign(document.createElement('p'), { className: 'm-0 w-full font-semibold', textContent: 'Filters on:' })] : []),
+        ...chips.map(([label, clear]) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'inline-flex min-h-11 items-center gap-2 rounded border border-bark/40 bg-white px-3 text-[0.9375rem] hover:border-red';
+          b.innerHTML = '<span></span><span aria-hidden="true">×</span><span class="sr-only">(remove filter)</span>';
+          b.firstElementChild!.textContent = label;
+          b.addEventListener('click', () => update(clear));
+          return b;
+        }),
+      );
+      root.querySelector('[data-toggle-count]')!.textContent = chips.length ? `(${chips.length})` : '';
+
+      const q = new URLSearchParams();
+      if (s.q) q.set('q', s.q);
+      if (s.max) q.set('max', String(s.max));
+      if (s.sleeps) q.set('sleeps', String(s.sleeps));
+      if (s.make) q.set('make', s.make);
+      if (s.sort !== 'newest') q.set('sort', s.sort);
+      history.replaceState(null, '', q.toString() ? `?${q}` : location.pathname);
+    }
+
+    function update(patch: Partial<State>) {
+      s = { ...s, ...patch };
+      syncControls();
+      render();
+    }
+
+    form.addEventListener('input', (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.name === 'q') update({ q: el.value });
+      else if (el.name === 'sort') update({ sort: el.value });
+      else if (el.name === 'make') update({ make: el.value });
+      else if (el.name === 'max' || el.name === 'sleeps') update({ [el.name]: num(el.value) });
+    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+    empty?.querySelector('button')?.addEventListener('click', () => update({ q: '', max: null, sleeps: null, make: '' }));
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      form.toggleAttribute('data-open', open);
+    });
+
+    syncControls();
+    render();
+  }
+</script>

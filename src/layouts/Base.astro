@@ -51,7 +51,8 @@ const ld = [localBusinessJsonLd(), ...jsonLd];
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="en_CA" />
     <script is:inline>
-      // Apply the footer "Reduce motion" choice before first paint.
+      // Mark JS as available (shows JS-only controls), and apply the footer "Reduce motion" choice before first paint.
+      document.documentElement.classList.add('js');
       try { if (localStorage.getItem('rvf-motion') === 'reduce') document.documentElement.dataset.motion = 'reduce'; } catch (e) {}
     </script>
     {preloadImage && (

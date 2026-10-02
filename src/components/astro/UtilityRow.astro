@@ -15,7 +15,7 @@ const contactHref = routeExists('/contact') ? '/contact#map' : dealership.addres
 ---
 <section aria-label="Today's hours, address and phone" class="bg-red text-white">
   <div class="wrap flex items-center gap-x-5 py-1 text-[0.9375rem] leading-snug whitespace-nowrap overflow-hidden">
-    <p class="m-0 flex items-center gap-2">
+    <p class="m-0 flex items-center gap-2 print:hidden">
       <span id="open-dot" class="inline-block size-2.5 rounded-full bg-white/35 ring-1 ring-white" aria-hidden="true"></span>
       <span id="open-status" data-hours={JSON.stringify(dealership.hours)} data-tz={dealership.timeZone}>
         <span class="hidden sm:inline">{summary}</span><span class="sm:hidden">See hours below</span>

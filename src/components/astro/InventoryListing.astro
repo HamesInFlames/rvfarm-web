@@ -1,18 +1,25 @@
 ---
-// Shared listing body for /inventory and /inventory/type/*: type links (work without JS), the filter island
-// over server-rendered cards, the estimate footnote and the disclaimer.
-import InventoryFilter from '../islands/InventoryFilter';
+// Shared listing body for /inventory and /inventory/type/*: type links (work without JS), static unit cards,
+// and the filter script that only drives which cards show and in what order (fast first paint on phones).
+import InventoryFilter from './InventoryFilter.astro';
+import UnitCard from '../islands/UnitCard';
 import { cardData, groupOf, TYPE_GROUPS, type Unit } from '../../lib/inventory';
 import { ESTIMATE_FOOTNOTE } from '../../lib/price';
 import { REVIEW } from '../../lib/site';
 
 interface Props { units: Unit[]; allUnits: Unit[]; currentGroup?: string }
 const { units, allUnits, currentGroup } = Astro.props;
-const cards = await Promise.all(units.map(async (u) => ({
-  ...(await cardData(u)),
+const cards = await Promise.all(units.map(cardData));
+const filterUnits = units.map((u, i) => ({
+  slug: u.slug,
+  price: cards[i].price,
+  sleeps: u.sleeps,
+  make: u.make,
+  year: u.year,
+  lengthFt: u.lengthFt,
   keywords: [u.year, u.make, u.series, u.model, groupOf(u).label, u.type.replace('-', ' '), u.bunkhouse ? 'bunkhouse bunk bunks' : '',
     ...u.features, u.description].filter(Boolean).join(' ').toLowerCase(),
-})));
+}));
 const groups = TYPE_GROUPS.map((g) => ({ ...g, count: allUnits.filter((u) => groupOf(u).slug === g.slug).length })).filter((g) => g.count > 0);
 ---
 <nav aria-label="Unit types" class="mb-6">
@@ -36,7 +43,24 @@ const groups = TYPE_GROUPS.map((g) => ({ ...g, count: allUnits.filter((u) => gro
   </ul>
 </nav>
 
-<InventoryFilter client:visible units={cards} review={REVIEW} footnoteId="estimate-note" />
+<div class="grid gap-8 lg:grid-cols-12">
+  <div class="needs-js lg:col-span-3">
+    <InventoryFilter units={filterUnits} gridId="unit-grid" emptyId="unit-empty" countId="unit-count" />
+  </div>
+  <div class="lg:col-span-9 no-js:lg:col-span-12">
+    <p id="unit-count" class="m-0 mb-4 font-semibold" aria-live="polite">Showing {units.length} of {units.length}</p>
+    <ul id="unit-grid" class="m-0 grid list-none gap-6 p-0 sm:grid-cols-2 xl:grid-cols-3" aria-describedby="estimate-note">
+      {cards.map((c, i) => (
+        <li data-slug={c.slug} class="flex"><UnitCard unit={c} review={REVIEW} headingLevel={2} priority={i === 0} /></li>
+      ))}
+    </ul>
+    <div id="unit-empty" hidden class="rounded border border-rule bg-paper p-6">
+      <p class="m-0 text-lead font-semibold">Nothing on the lot matches that right now.</p>
+      <p class="mt-2">Try fewer filters, or call us and tell us what you're after. Trade-ins and consignments come in all the time.</p>
+      <button type="button" class="btn btn-secondary mt-3">Show all {units.length} units</button>
+    </div>
+  </div>
+</div>
 
 <div class="mt-8 border-t border-rule pt-4 text-[0.9375rem] text-bark-60">
   <p id="estimate-note" class="m-0">
