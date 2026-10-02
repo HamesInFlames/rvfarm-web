@@ -17,7 +17,8 @@
     "test:e2e": "playwright test --grep-invert shots",
     "shots": "playwright test screenshots",
     "lighthouse": "lhci autorun",
-    "verify": "npm run contrast && npm run test:unit && npm run check && npm run build && npm run content-check && npm run test:e2e"
+    "verify": "npm run contrast && npm run test:unit && npm run check && npm run build && npm run content-check && npm run test:e2e",
+    "photos": "node scripts/photos.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",

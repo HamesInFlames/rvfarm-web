@@ -10,7 +10,6 @@ import { primaryNav, routeExists } from '../../lib/site';
 interface Props { variant?: 'full' | 'interim'; current?: string }
 const { variant = 'full', current = '' } = Astro.props;
 const nav = variant === 'full' ? primaryNav.filter((n) => n.external || routeExists(n.href)) : [];
-const hasInventory = variant === 'full' && routeExists('/inventory');
 ---
 <header class="relative z-40 bg-white border-b border-rule">
   <div class="wrap flex items-center gap-4 py-2.5 lg:py-3">
@@ -39,9 +38,6 @@ const hasInventory = variant === 'full' && routeExists('/inventory');
     )}
 
     <div class="ml-auto flex items-center gap-2">
-      {hasInventory && (
-        <a href="/inventory" class="btn btn-secondary lg:hidden px-3">Inventory</a>
-      )}
       <a href={telHref(dealership.phones.main)} class="btn btn-primary px-4">
         <span class="lg:hidden">Call</span>
         <span class="hidden lg:inline tabular">Call {dealership.phones.main}</span>

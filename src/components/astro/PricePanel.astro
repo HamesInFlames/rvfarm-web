@@ -1,0 +1,80 @@
+---
+// Price panel on the unit page (plan §1 row 2, O7): all-in price, "+ HST", what's in it, optional extras,
+// example payment, actions. Every number comes from fees.json via lib/price.ts.
+import fees from '../../data/fees.json';
+import dealership from '../../data/dealership.json';
+import { advertisedPrice, priceBreakdown, examplePayment, ESTIMATE_FOOTNOTE, FREQUENCY_LABEL, type Frequency } from '../../lib/price';
+import { formatCad, formatCadCents, telHref } from '../../lib/format';
+import { routeExists } from '../../lib/site';
+import type { Unit } from '../../lib/inventory';
+import Confirm from './Confirm.astro';
+
+interface Props { unit: Unit }
+const { unit } = Astro.props;
+const sold = unit.status === 'sold';
+const price = unit.unitPriceCad !== undefined ? advertisedPrice(unit.unitPriceCad) : undefined;
+const lines = unit.unitPriceCad !== undefined ? priceBreakdown(unit.unitPriceCad) : [];
+const pay = unit.unitPriceCad !== undefined ? examplePayment(unit.unitPriceCad) : undefined;
+const status = { 'in-stock': ['On the lot', 'bg-ok'], pending: ['Sale pending', 'bg-pending'], sold: ['Sold', 'bg-sold'] }[unit.status];
+const tradeHref = routeExists('/sell-or-consign') ? '/sell-or-consign#trade' : '#ask';
+const pricingHref = routeExists('/pricing') ? '/pricing' : null;
+---
+<div class="rounded border border-rule bg-white p-5 lg:p-6">
+  <div class="flex flex-wrap items-center gap-3">
+    <span class:list={['rounded-sm px-2 py-0.5 text-sm font-semibold text-white', status[1]]}>{status[0]}</span>
+    <span class="text-[0.9375rem] text-bark-60">Stock {unit.stockNumber}<Confirm note="Real stock number" /></span>
+  </div>
+
+  {price !== undefined && !sold ? (
+    <>
+      <p class="m-0 mt-4 flex flex-wrap items-baseline gap-x-3">
+        <span class="font-[family-name:var(--font-display)] text-[2.75rem] font-bold leading-none text-red tabular">{formatCad(price)}</span>
+        <span class="text-lg font-semibold">+ HST</span>
+      </p>
+
+      <table class="mt-4 w-full border-collapse text-[0.9375rem] tabular">
+        <caption class="pb-1 text-left font-semibold text-ink">What's in this price</caption>
+        <tbody>
+          {lines.map((l) => (
+            <tr class="border-b border-rule">
+              <th scope="row" class="py-1.5 pr-3 text-left font-normal">{l.label}</th>
+              <td class="py-1.5 text-right">{formatCad(l.amountCad)}</td>
+            </tr>
+          ))}
+          <tr>
+            <th scope="row" class="py-1.5 pr-3 text-left font-semibold">Price before HST</th>
+            <td class="py-1.5 text-right font-semibold">{formatCad(price)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <Confirm note="Admin fee $599 vs $499; PDI package figure and name" />
+
+      {pay && pay.perPeriod > 0 && (
+        <p class="m-0 mt-4">
+          Est. <strong class="tabular">{formatCadCents(pay.perPeriod)}</strong> {FREQUENCY_LABEL[fees.estimator.frequency as Frequency]}*
+          <a href="#payments" class="tap flex">Work out your own payment</a>
+        </p>
+      )}
+
+      <details class="mt-3 rounded border border-rule">
+        <summary class="flex min-h-11 cursor-pointer items-center px-3 font-semibold">Optional extras (not in the price)</summary>
+        <ul class="m-0 list-none px-3 pb-3 text-[0.9375rem]">
+          <li class="py-1">{fees.optional.warranty.label}: {formatCad(fees.optional.warranty.amountCadPerYear)} a year, up to {fees.optional.warranty.maxYears} years<Confirm note="Warranty provider, coverage, age limits" /></li>
+          <li class="py-1">{fees.optional.delivery.label}: {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, or pick it up here<Confirm note="Delivery rate" /></li>
+          <li class="py-1">Plates and permit (government fees): {formatCad(fees.plates.plateAndPermitCad)}</li>
+        </ul>
+        {pricingHref && <p class="m-0 px-3 pb-3"><a href={pricingHref}>How our prices work</a></p>}
+      </details>
+    </>
+  ) : sold ? (
+    <p class="m-0 mt-4 text-lead font-semibold">This unit has sold. Similar units are below, or call us: new trades and consignments come in all the time.</p>
+  ) : null}
+
+  <div class="mt-5 grid gap-3">
+    <a href={telHref(dealership.phones.main)} class="btn btn-primary w-full text-lg tabular">Call {dealership.phones.main}</a>
+    <a href="#ask" class="btn btn-secondary w-full">Ask a question or book a viewing</a>
+    <a href={tradeHref} class="btn btn-secondary w-full">Trading in? Tell us what you have</a>
+  </div>
+
+  {pay && pay.perPeriod > 0 && !sold && <p class="m-0 mt-4 text-sm text-bark-60">* {ESTIMATE_FOOTNOTE()}</p>}
+</div>

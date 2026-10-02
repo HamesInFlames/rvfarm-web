@@ -1,0 +1,37 @@
+---
+// Type landing pages, generated only for types that have units (plan §1b #1: no empty pages).
+import Base from '../../../layouts/Base.astro';
+import Breadcrumbs from '../../../components/astro/Breadcrumbs.astro';
+import InventoryListing from '../../../components/astro/InventoryListing.astro';
+import { publishedUnits, TYPE_GROUPS, groupOf, cardData, type TypeGroup } from '../../../lib/inventory';
+import { breadcrumbJsonLd } from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  const units = await publishedUnits();
+  return TYPE_GROUPS
+    .filter((g) => units.some((u) => groupOf(u).slug === g.slug))
+    .map((g) => ({ params: { type: g.slug }, props: { group: g } }));
+}
+
+const { group } = Astro.props as { group: TypeGroup };
+const all = await publishedUnits();
+const units = all.filter((u) => groupOf(u).slug === group.slug);
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Inventory', path: '/inventory' },
+  { name: group.label, path: `/inventory/type/${group.slug}` },
+];
+const lcp = units[0] ? (await cardData(units[0])).image : undefined;
+const preloadImage = lcp && { src: lcp.src, srcset: lcp.srcset, sizes: '(min-width: 1280px) 400px, (min-width: 640px) 46vw, calc(100vw - 2rem)' };
+---
+<Base preloadImage={preloadImage} title={`Used ${group.label.toLowerCase()} for sale`} current="/inventory" jsonLd={[breadcrumbJsonLd(crumbs)]}
+  description={`${units.length} used ${group.label.toLowerCase()} for sale at RV Farm in Concord, Ontario. ${group.explainer}`}>
+  <Breadcrumbs items={crumbs} />
+  <div class="wrap pb-16 pt-4">
+    <h1 class="m-0 text-[2.25rem] lg:text-[3.25rem]">{group.label}: {units.length} on the lot</h1>
+    <p class="mt-3 max-w-[44rem] text-lead">{group.explainer}</p>
+    <div class="mt-8">
+      <InventoryListing units={units} allUnits={all} currentGroup={group.slug} />
+    </div>
+  </div>
+</Base>

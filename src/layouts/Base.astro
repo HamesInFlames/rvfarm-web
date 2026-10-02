@@ -16,6 +16,8 @@ interface Props {
   current?: string;
   jsonLd?: object[];
   noindex?: boolean;
+  /** The page's likely LCP image, preloaded so the browser fetches it before parsing the body. */
+  preloadImage?: { src: string; srcset?: string; sizes?: string };
 }
 const {
   title,
@@ -24,6 +26,7 @@ const {
   current,
   jsonLd = [],
   noindex = false,
+  preloadImage,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const fullTitle = title === dealership.brandName ? `${title} · Used trailers and park models in Concord, ON` : `${title} · ${dealership.brandName}`;
@@ -51,6 +54,9 @@ const ld = [localBusinessJsonLd(), ...jsonLd];
       // Apply the footer "Reduce motion" choice before first paint.
       try { if (localStorage.getItem('rvf-motion') === 'reduce') document.documentElement.dataset.motion = 'reduce'; } catch (e) {}
     </script>
+    {preloadImage && (
+      <link rel="preload" as="image" href={preloadImage.src} imagesrcset={preloadImage.srcset} imagesizes={preloadImage.sizes} fetchpriority="high" />
+    )}
     <Font cssVariable="--font-public-sans" preload={[{ weight: '400' }]} />
     <Font cssVariable="--font-barlow-condensed" preload={[{ weight: '700' }]} />
     {ld.map((obj) => <script type="application/ld+json" set:html={JSON.stringify(obj)} />)}

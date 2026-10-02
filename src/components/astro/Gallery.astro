@@ -1,0 +1,38 @@
+---
+// Unit gallery: large first photo, then every photo as a thumbnail. Each links to the full-size photo,
+// so it works without JS; the Lightbox island turns the links into a viewer.
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Lightbox from '../islands/Lightbox';
+import Placeholder from './Placeholder.astro';
+
+interface Props { photos: ImageMetadata[]; title: string; transitionName?: string }
+const { photos, title, transitionName } = Astro.props;
+const full = await Promise.all(photos.map((p) => getImage({ src: p, width: 1400, format: 'webp', quality: 78 })));
+const alt = (i: number) => (i === 0 ? `${title}, outside` : `${title}, photo ${i + 1} of ${photos.length}`);
+---
+{photos.length === 0 ? (
+  <Placeholder what={`photos of the ${title}`} />
+) : (
+  <div>
+    <a href={full[0].src} data-lightbox="unit" data-alt={alt(0)} class="block overflow-hidden rounded border border-rule bg-sand">
+      <Image src={photos[0]} alt={alt(0)} widths={[480, 768, 1024, 1280]} sizes="(min-width: 1024px) 760px, 100vw"
+        format="webp" quality={76} loading="eager" fetchpriority="high"
+        class="aspect-[4/3] h-auto w-full object-cover" style={transitionName ? `view-transition-name: ${transitionName}` : undefined} />
+      <span class="sr-only"> (open larger)</span>
+    </a>
+    {photos.length > 1 && (
+      <ul class="mt-3 grid list-none grid-cols-4 gap-2 p-0 sm:grid-cols-6">
+        {photos.map((p, i) => (
+          <li>
+            <a href={full[i].src} data-lightbox="unit" data-alt={alt(i)} class="block overflow-hidden rounded-sm border border-rule">
+              <Image src={p} alt={alt(i)} width={240} height={180} format="webp" quality={60} class="aspect-[4/3] h-auto w-full object-cover" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+    <p class="m-0 mt-2 text-[0.9375rem] text-bark-60">{photos.length} photo{photos.length > 1 ? 's' : ''}. Tap any photo to see it larger.</p>
+    <Lightbox client:idle group="unit" />
+  </div>
+)}

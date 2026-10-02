@@ -38,3 +38,50 @@ export function localBusinessJsonLd() {
     sameAs: Object.values(d.social),
   };
 }
+
+export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      item: new URL(it.path, dealership.siteUrl).href,
+    })),
+  };
+}
+
+/** Product + Offer for a unit page. Price is the advertised (all-in, pre-HST) price. */
+export function unitJsonLd(u: {
+  title: string; path: string; description: string; make: string; model: string; year: number;
+  stockNumber: string; priceCad?: number; status: string; imageUrls: string[];
+}) {
+  const url = new URL(u.path, dealership.siteUrl).href;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: u.title,
+    sku: u.stockNumber,
+    description: u.description || u.title,
+    brand: { '@type': 'Brand', name: u.make },
+    model: u.model,
+    productionDate: String(u.year),
+    url,
+    image: u.imageUrls.map((src) => new URL(src, dealership.siteUrl).href),
+    ...(u.priceCad !== undefined
+      ? {
+          offers: {
+            '@type': 'Offer',
+            url,
+            priceCurrency: 'CAD',
+            price: u.priceCad,
+            itemCondition: 'https://schema.org/UsedCondition',
+            availability: u.status === 'sold' ? 'https://schema.org/SoldOut'
+              : u.status === 'pending' ? 'https://schema.org/LimitedAvailability' : 'https://schema.org/InStock',
+            seller: { '@id': `${dealership.siteUrl}/#dealer` },
+          },
+        }
+      : {}),
+  };
+}

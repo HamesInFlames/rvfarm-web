@@ -1,0 +1,47 @@
+---
+// Shared listing body for /inventory and /inventory/type/*: type links (work without JS), the filter island
+// over server-rendered cards, the estimate footnote and the disclaimer.
+import InventoryFilter from '../islands/InventoryFilter';
+import { cardData, groupOf, TYPE_GROUPS, type Unit } from '../../lib/inventory';
+import { ESTIMATE_FOOTNOTE } from '../../lib/price';
+import { REVIEW } from '../../lib/site';
+
+interface Props { units: Unit[]; allUnits: Unit[]; currentGroup?: string }
+const { units, allUnits, currentGroup } = Astro.props;
+const cards = await Promise.all(units.map(async (u) => ({
+  ...(await cardData(u)),
+  keywords: [u.year, u.make, u.series, u.model, groupOf(u).label, u.type.replace('-', ' '), u.bunkhouse ? 'bunkhouse bunk bunks' : '',
+    ...u.features, u.description].filter(Boolean).join(' ').toLowerCase(),
+})));
+const groups = TYPE_GROUPS.map((g) => ({ ...g, count: allUnits.filter((u) => groupOf(u).slug === g.slug).length })).filter((g) => g.count > 0);
+---
+<nav aria-label="Unit types" class="mb-6">
+  <ul class="m-0 flex list-none flex-wrap gap-2 p-0">
+    <li>
+      <a href="/inventory" aria-current={!currentGroup ? 'page' : undefined}
+        class:list={['inline-flex min-h-11 items-center rounded border px-4 font-semibold no-underline',
+          !currentGroup ? 'border-ink bg-ink text-white hover:text-white' : 'border-bark/40 bg-white text-ink hover:border-red']}>
+        All units ({allUnits.length})
+      </a>
+    </li>
+    {groups.map((g) => (
+      <li>
+        <a href={`/inventory/type/${g.slug}`} aria-current={currentGroup === g.slug ? 'page' : undefined}
+          class:list={['inline-flex min-h-11 items-center rounded border px-4 font-semibold no-underline',
+            currentGroup === g.slug ? 'border-ink bg-ink text-white hover:text-white' : 'border-bark/40 bg-white text-ink hover:border-red']}>
+          {g.label} ({g.count})
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<InventoryFilter client:visible units={cards} review={REVIEW} footnoteId="estimate-note" />
+
+<div class="mt-8 border-t border-rule pt-4 text-[0.9375rem] text-bark-60">
+  <p id="estimate-note" class="m-0">
+    Prices include the PDI package and admin fee. HST and licensing are extra.
+    * {ESTIMATE_FOOTNOTE()}
+  </p>
+  <p class="m-0 mt-2">Units can sell quickly. Call to make sure the one you want is still here before you drive out.</p>
+</div>

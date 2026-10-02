@@ -34,15 +34,19 @@ test('tap targets are at least 44px on phones', async ({ page }) => {
     const found = await page.$$eval('a, button, summary, input, select, textarea', (els) =>
       els
         .filter((el) => {
-          const r = el.getBoundingClientRect();
+          // A radio or checkbox inside its <label> is tapped through the label.
+          const target = el.matches('input[type=radio], input[type=checkbox]') && el.closest('label') ? el.closest('label')! : el;
+          const r = target.getBoundingClientRect();
           const s = getComputedStyle(el);
           if (r.width === 0 || s.visibility === 'hidden' || el.closest('.sr-only')) return false;
+          // Stretched links (::after covering a card) take the whole card as their target.
+          if (getComputedStyle(el, '::after').position === 'absolute') return false;
           // Inline links inside running text are exempt (WCAG 2.5.8 inline exception).
           if (el.tagName === 'A' && s.display === 'inline' && el.parentElement && /^(P|LI|TD|SPAN)$/.test(el.parentElement.tagName)
             && (el.parentElement.textContent ?? '').trim().length > (el.textContent ?? '').trim().length + 10) return false;
           return r.height < 44;
         })
-        .map((el) => `${el.tagName.toLowerCase()} "${(el.textContent ?? '').trim().slice(0, 40)}" ${Math.round(el.getBoundingClientRect().height)}px`),
+        .map((el) => `${el.tagName.toLowerCase()}${el.getAttribute('type') ? `[${el.getAttribute('type')}]` : ''} "${(el.textContent || el.getAttribute('name') || '').trim().slice(0, 40)}" ${Math.round(el.getBoundingClientRect().height)}px`),
     );
     small.push(...found.map((f) => `${path}: ${f}`));
   }

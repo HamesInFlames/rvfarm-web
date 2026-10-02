@@ -1,0 +1,141 @@
+// The one lead form (plan D12, §1b #3). A real <form method="post"> to Web3Forms, so it works without JS
+// (Web3Forms redirects to /thanks); with JS it submits in place. Never asks for SIN, DOB or banking details.
+import { useId, useState, type SyntheticEvent } from 'react';
+
+export interface LeadFormProps {
+  accessKey?: string;
+  subject: string;
+  redirectUrl: string;
+  topics?: string[];
+  defaultTopic?: string;
+  stockNumber?: string;
+  unitTitle?: string;
+  messageLabel?: string;
+  messagePlaceholder?: string;
+  phoneDisplay: string;
+  privacyHref?: string;
+}
+
+export default function LeadForm(p: LeadFormProps) {
+  const id = useId();
+  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  async function onSubmit(e: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const next: Record<string, string> = {};
+    if (!String(data.get('name') ?? '').trim()) next.name = 'Please tell us your name.';
+    const phone = String(data.get('phone') ?? '').replace(/\D/g, '');
+    const email = String(data.get('email') ?? '').trim();
+    if (!phone && !email) next.phone = 'Please give us a phone number or an email so we can reply.';
+    if (phone && phone.length < 10) next.phone = 'That phone number looks short. Include the area code.';
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) next.email = 'That email address doesn’t look right.';
+    setErrors(next);
+    if (Object.keys(next).length) {
+      e.preventDefault();
+      form.querySelector<HTMLElement>(`[aria-invalid="true"], #${CSS.escape(`${id}-${Object.keys(next)[0]}`)}`)?.focus();
+      return;
+    }
+    e.preventDefault();
+    if (!p.accessKey) { setState('error'); return; } // build without PUBLIC_WEB3FORMS_KEY: ask them to call instead
+    setState('sending');
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: data,
+      });
+      const json = await res.json();
+      setState(json.success ? 'sent' : 'error');
+    } catch {
+      setState('error');
+    }
+  }
+
+  if (state === 'sent') {
+    return (
+      <div className="rounded border-2 border-ok bg-white p-5" role="status">
+        <p className="m-0 text-lead font-semibold">Thanks, we got it.</p>
+        <p className="mt-2">We call back within one business day. If it’s urgent, call <a href={`tel:+1${p.phoneDisplay.replace(/\D/g, '')}`} className="font-semibold">{p.phoneDisplay}</a>.</p>
+      </div>
+    );
+  }
+
+  const field = 'block w-full min-h-12 rounded border-2 border-bark/40 bg-white px-3 py-2 text-[1.0625rem] text-ink';
+  const label = 'mb-1 block font-semibold text-ink';
+  const err = (k: string) => errors[k] && <p id={`${id}-${k}-err`} className="m-0 mt-1 font-semibold text-red">{errors[k]}</p>;
+  const invalid = (k: string) => (errors[k] ? { 'aria-invalid': true, 'aria-describedby': `${id}-${k}-err` } : {});
+
+  return (
+    <form action="https://api.web3forms.com/submit" method="post" onSubmit={onSubmit} noValidate className="grid gap-4 sm:grid-cols-2">
+      <input type="hidden" name="access_key" value={p.accessKey ?? ''} />
+      <input type="hidden" name="subject" value={p.subject} />
+      <input type="hidden" name="from_name" value="RV Farm website" />
+      <input type="hidden" name="redirect" value={p.redirectUrl} />
+      {p.stockNumber && <input type="hidden" name="stock_number" value={p.stockNumber} />}
+      {p.unitTitle && <input type="hidden" name="unit" value={p.unitTitle} />}
+      {/* Honeypot: people never see or fill this. */}
+      <input type="checkbox" name="botcheck" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+
+      {p.unitTitle && (
+        <p className="m-0 sm:col-span-2">About: <strong>{p.unitTitle}</strong>{p.stockNumber && <> (stock {p.stockNumber})</>}</p>
+      )}
+
+      <div className="sm:col-span-2">
+        <label htmlFor={`${id}-name`} className={label}>Your name</label>
+        <input id={`${id}-name`} name="name" autoComplete="name" className={field} {...invalid('name')} />
+        {err('name')}
+      </div>
+      <div>
+        <label htmlFor={`${id}-phone`} className={label}>Phone</label>
+        <input id={`${id}-phone`} name="phone" type="tel" autoComplete="tel" inputMode="tel" className={field} {...invalid('phone')} />
+        {err('phone')}
+      </div>
+      <div>
+        <label htmlFor={`${id}-email`} className={label}>Email <span className="font-normal text-bark-60">(optional if you gave a phone)</span></label>
+        <input id={`${id}-email`} name="email" type="email" autoComplete="email" className={field} {...invalid('email')} />
+        {err('email')}
+      </div>
+
+      {p.topics && p.topics.length > 0 && (
+        <fieldset className="m-0 border-0 p-0 sm:col-span-2">
+          <legend className={label}>What can we help with?</legend>
+          <div className="flex flex-wrap gap-x-6">
+            {p.topics.map((t) => (
+              <label key={t} className="flex min-h-11 cursor-pointer items-center gap-2">
+                <input type="radio" name="topic" value={t} defaultChecked={t === (p.defaultTopic ?? p.topics![0])} className="size-5 accent-red" />
+                {t}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
+
+      <div className="sm:col-span-2">
+        <label htmlFor={`${id}-message`} className={label}>{p.messageLabel ?? 'Message'} <span className="font-normal text-bark-60">(optional)</span></label>
+        <textarea id={`${id}-message`} name="message" rows={4} className={field} placeholder={p.messagePlaceholder} />
+      </div>
+
+      <label className="flex cursor-pointer items-start gap-3 sm:col-span-2">
+        <input type="checkbox" name="best_time_text_ok" value="yes" className="mt-1 size-5 shrink-0 accent-red" />
+        <span>It’s fine to text me at this number about this request.</span>
+      </label>
+
+      <div className="sm:col-span-2">
+        <button type="submit" className="btn btn-primary min-w-48 text-lg" disabled={state === 'sending'}>
+          {state === 'sending' ? 'Sending…' : 'Send'}
+        </button>
+        {state === 'error' && (
+          <p className="m-0 mt-3 font-semibold text-red" role="alert">
+            That didn’t go through. Please call us at {p.phoneDisplay}, or try again.
+          </p>
+        )}
+        <p className="m-0 mt-3 text-[0.9375rem] text-bark-60">
+          We use your details only to answer this request.{' '}
+          {p.privacyHref && <a href={p.privacyHref}>How we handle your information</a>}
+        </p>
+      </div>
+    </form>
+  );
+}

@@ -1,0 +1,190 @@
+---
+// Unit detail page (plan §1 row 16): gallery left, price panel right, quick specs, specs, description,
+// payment estimator, similar units, contact form prefilled with the stock number.
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/astro/Breadcrumbs.astro';
+import Gallery from '../../components/astro/Gallery.astro';
+import PricePanel from '../../components/astro/PricePanel.astro';
+import SpecTable from '../../components/astro/SpecTable.astro';
+import Confirm from '../../components/astro/Confirm.astro';
+import UnitCard from '../../components/islands/UnitCard';
+import PaymentEstimator from '../../components/islands/PaymentEstimator';
+import LeadForm from '../../components/islands/LeadForm';
+import fees from '../../data/fees.json';
+import dealership from '../../data/dealership.json';
+import {
+  publishedUnits, unitTitle, unitPath, unitPhotos, groupOf, specLine, towHint, similarUnits, cardData, type Unit,
+} from '../../lib/inventory';
+import { advertisedPrice, ESTIMATE_FOOTNOTE, type Frequency } from '../../lib/price';
+import { breadcrumbJsonLd, unitJsonLd } from '../../lib/seo';
+import { telHref, formatNumber } from '../../lib/format';
+import { REVIEW, routeExists } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const units = await publishedUnits();
+  return units.map((u) => ({ params: { slug: u.slug }, props: { unit: u } }));
+}
+
+const { unit } = Astro.props as { unit: Unit };
+const all = await publishedUnits();
+const title = unitTitle(unit);
+const group = groupOf(unit);
+const photos = unitPhotos(unit);
+const price = unit.unitPriceCad !== undefined ? advertisedPrice(unit.unitPriceCad) : undefined;
+const similar = await Promise.all(similarUnits(unit, all).map(cardData));
+const tow = towHint(unit);
+const index = all.findIndex((u) => u.slug === unit.slug);
+const prev = all[(index - 1 + all.length) % all.length];
+const next = all[(index + 1) % all.length];
+
+const quick = [
+  ['Year', String(unit.year)],
+  ['Length', unit.lengthFt ? `${unit.lengthFt} ft` : undefined],
+  ['Sleeps', unit.sleeps ? String(unit.sleeps) : undefined],
+  ['Bedrooms', unit.bedrooms ? String(unit.bedrooms) : undefined],
+  ['Slide-outs', unit.slides !== undefined ? String(unit.slides) : undefined],
+  ['Dry weight', unit.dryWeightLbs ? `${formatNumber(unit.dryWeightLbs)} lb` : undefined],
+  ['Type', group.one],
+].filter((q): q is [string, string] => Boolean(q[1])).slice(0, 6);
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Inventory', path: '/inventory' },
+  { name: group.label, path: `/inventory/type/${group.slug}` },
+  { name: title, path: unitPath(unit) },
+];
+const firstPhotoUrl = photos[0]?.src;
+const description = `${title} for sale at RV Farm in Concord, ON${price ? `: ${new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(price)} + HST, PDI package and admin fee included` : ''}. ${specLine(unit)}`.trim();
+const formKey = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
+const site = Astro.site!;
+---
+<Base title={title} description={description} current="/inventory"
+  jsonLd={[breadcrumbJsonLd(crumbs), unitJsonLd({
+    title, path: unitPath(unit), description: unit.description, make: unit.make, model: unit.model, year: unit.year,
+    stockNumber: unit.stockNumber, priceCad: price, status: unit.status, imageUrls: firstPhotoUrl ? [firstPhotoUrl] : [],
+  })]}>
+  <Breadcrumbs items={crumbs} />
+
+  <div class="wrap pb-16 pt-4">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="eyebrow m-0 text-red">{group.one} · Stock {unit.stockNumber}</p>
+        <h1 class="m-0 mt-1 text-[2rem] lg:text-[3rem]">{title}</h1>
+        {specLine(unit) && <p class="m-0 mt-2 text-lead">{specLine(unit)}</p>}
+        {REVIEW && unit.confirm.length > 0 && (
+          <ul class="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
+            {unit.confirm.map((c) => <li><span class="confirm-chip ms-0">[confirm] {c}</span></li>)}
+          </ul>
+        )}
+      </div>
+      <nav aria-label="Other units" class="flex gap-2">
+        <a href={unitPath(prev)} class="btn btn-secondary px-3" rel="prev">‹ Previous unit</a>
+        <a href={unitPath(next)} class="btn btn-secondary px-3" rel="next">Next unit ›</a>
+      </nav>
+    </div>
+
+    <div class="mt-6 grid gap-8 lg:grid-cols-12">
+      <div class="lg:col-span-8">
+        <Gallery photos={photos} title={title} transitionName={`unit-${unit.slug}`} />
+      </div>
+      <aside aria-label="Price and contact" class="lg:col-span-4">
+        <div class="lg:sticky lg:top-4">
+          <PricePanel unit={unit} />
+        </div>
+      </aside>
+    </div>
+
+    {quick.length > 0 && (
+      <ul class="mt-10 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 lg:grid-cols-6" aria-label="Quick specs">
+        {quick.map(([label, value]) => (
+          <li class="rounded border border-rule bg-paper p-3">
+            <span class="block text-[0.9375rem] text-bark-60">{label}</span>
+            <span class="block font-[family-name:var(--font-display)] text-2xl font-bold text-ink tabular">{value}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <nav aria-label="On this page" class="mt-10 border-y border-rule">
+      <ul class="m-0 flex list-none flex-wrap gap-x-6 p-0">
+        {unit.description && <li><a href="#overview" class="tap font-semibold">Overview</a></li>}
+        <li><a href="#specs" class="tap font-semibold">Specs</a></li>
+        {unit.features.length > 0 && <li><a href="#features" class="tap font-semibold">Features</a></li>}
+        {price !== undefined && <li><a href="#payments" class="tap font-semibold">Payments</a></li>}
+        <li><a href="#ask" class="tap font-semibold">Ask about it</a></li>
+      </ul>
+    </nav>
+
+    <div class="mt-10 grid gap-12 lg:grid-cols-12">
+      <div class="lg:col-span-8">
+        {unit.description && (
+          <section id="overview" aria-labelledby="overview-h" class="scroll-mt-4">
+            <h2 id="overview-h" class="m-0 text-[1.75rem]">Overview</h2>
+            <span class="rule-orange mt-2" aria-hidden="true"></span>
+            <p class="mt-4 max-w-[42rem] whitespace-pre-line">{unit.description}</p>
+          </section>
+        )}
+        {tow && <p class="mt-6 max-w-[42rem] rounded border-l-4 border-orange bg-paper p-4"><strong>Towing:</strong> {tow}</p>}
+
+        <section id="specs" aria-labelledby="specs-h" class="mt-12 scroll-mt-4">
+          <h2 id="specs-h" class="m-0 text-[1.75rem]">Specs</h2>
+          <span class="rule-orange mb-5 mt-2" aria-hidden="true"></span>
+          <SpecTable unit={unit} />
+          <p class="mt-4 text-[0.9375rem] text-bark-60">Specs come from the manufacturer’s published figures where we have them. Ask us to measure anything that matters to you.</p>
+        </section>
+
+        {unit.features.length > 0 && (
+          <section id="features" aria-labelledby="features-h" class="mt-12 scroll-mt-4">
+            <h2 id="features-h" class="m-0 text-[1.75rem]">Features</h2>
+            <span class="rule-orange mt-2" aria-hidden="true"></span>
+            <ul class="mt-4 grid gap-x-8 gap-y-1 pl-5 sm:grid-cols-2">
+              {unit.features.map((f) => <li>{f}</li>)}
+            </ul>
+          </section>
+        )}
+
+        {unit.videoUrl && (
+          <p class="mt-8"><a href={unit.videoUrl} target="_blank" rel="noopener" class="tap font-semibold">Watch the walk-through video on YouTube<span class="sr-only"> (opens in a new tab)</span></a></p>
+        )}
+      </div>
+    </div>
+
+    {price !== undefined && unit.status !== 'sold' && (
+      <section id="payments" aria-labelledby="payments-h" class="mt-14 scroll-mt-4 rounded border border-rule bg-paper p-5 lg:p-8">
+        <h2 id="payments-h" class="m-0 text-[1.75rem]">Work out a payment</h2>
+        <span class="rule-orange mb-5 mt-2" aria-hidden="true"></span>
+        <PaymentEstimator client:visible priceCad={price} aprPct={fees.estimator.exampleAprPct}
+          termMonths={fees.estimator.termMonths} downCad={fees.estimator.downCad} frequency={fees.estimator.frequency as Frequency} />
+        <noscript><p>{ESTIMATE_FOOTNOTE()}</p></noscript>
+        <Confirm note="Lender and example rate" />
+      </section>
+    )}
+
+    <section id="ask" aria-labelledby="ask-h" class="mt-14 scroll-mt-4 grid gap-8 lg:grid-cols-12">
+      <div class="lg:col-span-4">
+        <h2 id="ask-h" class="m-0 text-[1.75rem]">Ask about this unit</h2>
+        <span class="rule-orange mt-2" aria-hidden="true"></span>
+        <p class="mt-4">Questions, a viewing, or a price on your trade: tell us here and we'll call you back within one business day. Or call now:</p>
+        <p class="mt-2"><a href={telHref(dealership.phones.main)} class="tap text-2xl font-semibold tabular">{dealership.phones.main}</a></p>
+      </div>
+      <div class="lg:col-span-8">
+        <LeadForm client:visible accessKey={formKey} subject={`Website: ${title} (${unit.stockNumber})`}
+          redirectUrl={new URL('/thanks', site).href} stockNumber={unit.stockNumber} unitTitle={title}
+          topics={['A question', 'Book a viewing', 'Value my trade-in', 'Financing']} phoneDisplay={dealership.phones.main}
+          messagePlaceholder="e.g. Can I see it Saturday morning?" privacyHref={routeExists('/privacy') ? '/privacy' : undefined} />
+      </div>
+    </section>
+
+    {similar.length > 0 && (
+      <section aria-labelledby="similar-h" class="mt-16">
+        <h2 id="similar-h" class="m-0 text-[1.75rem]">Similar units</h2>
+        <span class="rule-orange mb-5 mt-2" aria-hidden="true"></span>
+        <ul class="m-0 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          {similar.map((c) => <li class="flex"><UnitCard unit={c} review={REVIEW} /></li>)}
+        </ul>
+        <p class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and licensing extra. * {ESTIMATE_FOOTNOTE()}</p>
+        <p class="mt-2"><a href="/inventory" class="tap font-semibold">See all units</a></p>
+      </section>
+    )}
+  </div>
+</Base>

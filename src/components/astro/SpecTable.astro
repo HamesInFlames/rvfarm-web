@@ -1,0 +1,59 @@
+---
+// Grouped spec table with plain labels and the industry term in brackets (plan §1 row 16).
+// Only rows we have data for; nothing is guessed.
+import type { Unit } from '../../lib/inventory';
+import { groupOf } from '../../lib/inventory';
+import { formatNumber } from '../../lib/format';
+
+interface Props { unit: Unit }
+const { unit: u } = Astro.props;
+const lb = (n?: number) => (n ? `${formatNumber(n)} lb` : undefined);
+const groups = [
+  {
+    name: 'The basics',
+    rows: [
+      ['Year', String(u.year)],
+      ['Make', u.make],
+      ['Model', [u.series, u.model].filter(Boolean).join(' ')],
+      ['Type', groupOf(u).one],
+      ['Stock number', u.stockNumber],
+    ],
+  },
+  {
+    name: 'Size and weight',
+    rows: [
+      ['Length', u.lengthFt ? `${u.lengthFt} ft` : undefined],
+      ['Width', u.widthFt ? `${u.widthFt} ft` : undefined],
+      ['Empty weight (dry weight)', lb(u.dryWeightLbs)],
+      ['Most it can weigh loaded (GVWR)', lb(u.gvwrLbs)],
+      ['Weight on the hitch (hitch weight)', lb(u.hitchWeightLbs)],
+    ],
+  },
+  {
+    name: 'Sleeping and living',
+    rows: [
+      ['Sleeps', u.sleeps ? String(u.sleeps) : undefined],
+      ['Bedrooms', u.bedrooms ? String(u.bedrooms) : undefined],
+      ['Bunk beds (bunkhouse)', u.bunkhouse ? 'Yes' : undefined],
+      ['Slide-outs', u.slides !== undefined ? String(u.slides) : undefined],
+    ],
+  },
+]
+  .map((g) => ({ ...g, rows: g.rows.filter((r): r is [string, string] => Boolean(r[1])) }))
+  .filter((g) => g.rows.length > 0);
+---
+<div class="grid gap-6 md:grid-cols-2">
+  {groups.map((g) => (
+    <table class="w-full border-collapse self-start tabular">
+      <caption class="pb-2 text-left font-[family-name:var(--font-display)] text-xl font-bold text-ink">{g.name}</caption>
+      <tbody>
+        {g.rows.map(([label, value], i) => (
+          <tr class:list={['border-b border-rule', { 'bg-paper': i % 2 === 0 }]}>
+            <th scope="row" class="w-3/5 px-2 py-2 text-left font-normal">{label}</th>
+            <td class="px-2 py-2 font-semibold">{value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ))}
+</div>

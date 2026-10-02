@@ -11,7 +11,8 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   build: { format: 'file' },
-  integrations: [react(), sitemap()],
+  // /thanks is noindex, so it stays out of the sitemap.
+  integrations: [react(), sitemap({ filter: (page) => !page.endsWith('/thanks') })],
   // Self-hosted at build time (no Google request from the browser); plan D8.
   fonts: [
     {
