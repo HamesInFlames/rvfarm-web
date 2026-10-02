@@ -42,8 +42,9 @@
   - **Low 14** `delivery.astro` "measured one way… by the road route" is unflagged; add a Confirm.
   - **Low 15** no-JS form redirect goes to `https://rvfarm.ca/thanks` (unconfirmed domain); use a site-origin env var.
   - **Low 16** Caddy trailing-slash redirect drops the query string; keep `{query}`. Consider HSTS.
-- **Running when stopped:** a full Lighthouse run (background) after the filter rewrite; results in `test-results/lighthouse/` (not committed). Rerun with `npx lhci autorun`.
+- **Lighthouse after the filter rewrite (finished):** performance 98–100 on all 16 page types, LCP 1.5–2.3 s, CLS ≈ 0, a11y/BP 100; SEO 69 everywhere only because robots.txt blocks indexing until launch.
+- **Handoff:** `docs/HANDOFF.md`. `dev` pushed at 4b318e9+; no `main` yet (Claude blocked from creating/merging it; James does it).
 - **Still to do in Phase 3:** the fixes above → `npm run verify` → Lighthouse → screenshots → commit; Lighthouse against the Railway URL once deployed; a real mid-range Android check (James's phone).
-- **Not pushed:** Phase 2 (1645272) and Phase 3 (ce8fe35) are local on `dev`; ask James before pushing.
+- **Pushed:** everything on `dev` (James: "commit and push everything").
 - **What's next:** start with review High 1 and High 2, then Med 3–8.
 - **Findings for James:** `kimconsultant.net` (apex) doesn't resolve in DNS; only `www.kimconsultant.net` does. The footer links to `www`.
