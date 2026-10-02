@@ -1,0 +1,93 @@
+---
+// How our prices work (plan O7, O17). Fee amounts all come from fees.json.
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/astro/PageIntro.astro';
+import Confirm from '../components/astro/Confirm.astro';
+import fees from '../data/fees.json';
+import dealership from '../data/dealership.json';
+import { publishedUnits, unitTitle, unitPath } from '../lib/inventory';
+import { advertisedPrice, priceBreakdown, hstOn, mandatoryFees } from '../lib/price';
+import { formatCad, formatCadCents, telHref } from '../lib/format';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const units = (await publishedUnits()).filter((u) => u.status !== 'sold' && u.unitPriceCad !== undefined);
+const example = [...units].sort((a, b) => a.unitPriceCad! - b.unitPriceCad!)[Math.floor(units.length / 2)];
+const ad = example ? advertisedPrice(example.unitPriceCad!) : 0;
+const crumbs = [{ name: 'Home', path: '/' }, { name: 'How our prices work', path: '/pricing' }];
+---
+<Base title="How our prices work" jsonLd={[breadcrumbJsonLd(crumbs)]}
+  description="Every RV Farm price includes the PDI package and admin fee. HST and government plate fees are added at sale. Warranty and delivery are optional.">
+  <PageIntro crumbs={crumbs} title="How our prices work"
+    lead="The price on every unit is what you pay before tax. Nothing mandatory gets added at the desk except HST and the government’s plate fee." />
+
+  <section aria-labelledby="in-h" class="wrap grid gap-10 py-10 lg:grid-cols-12">
+    <div class="lg:col-span-6">
+      <h2 id="in-h" class="m-0 text-[2rem]">Included in every price</h2>
+      <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+      <dl class="m-0 grid gap-4">
+        {mandatoryFees().map((f) => (
+          <div class="rounded border border-rule bg-paper p-4">
+            <dt class="font-semibold">{f.label}: {formatCad(f.amountCad)}</dt>
+            <dd class="m-0 mt-1">
+              {f.label === fees.pdiPackage.label
+                ? 'Our pre-delivery inspection of the unit’s systems, a hands-on demonstration when you pick it up, and a starter kit.'
+                : 'Preparing the paperwork and registering the sale.'}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <Confirm note="Exact PDI package figure, name and what's in it; admin $599 vs $499" />
+    </div>
+    {example && (
+      <div class="lg:col-span-6">
+        <h2 class="m-0 text-[2rem]">An example</h2>
+        <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+        <table class="w-full border-collapse bg-white tabular">
+          <caption class="pb-2 text-left font-semibold text-ink"><a href={unitPath(example)} class="tap">{unitTitle(example)}</a></caption>
+          <tbody>
+            {priceBreakdown(example.unitPriceCad!).map((l) => (
+              <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">{l.label}</th><td class="px-3 py-2 text-right">{formatCad(l.amountCad)}</td></tr>
+            ))}
+            <tr class="border-b-2 border-ink"><th scope="row" class="px-3 py-2 text-left font-semibold">Advertised price</th><td class="px-3 py-2 text-right font-bold text-red">{formatCad(ad)}</td></tr>
+            <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">HST (13%)</th><td class="px-3 py-2 text-right">{formatCadCents(hstOn(ad))}</td></tr>
+            <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">Plates and permit (government fee)</th><td class="px-3 py-2 text-right">{formatCad(fees.plates.plateAndPermitCad)}</td></tr>
+            <tr><th scope="row" class="px-3 py-2 text-left font-semibold">Total if you take nothing optional</th><td class="px-3 py-2 text-right font-semibold">{formatCadCents(ad + hstOn(ad) + fees.plates.plateAndPermitCad)}</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-2 text-[0.9375rem] text-bark-60">If you only need a permit (not plates), the government fee is {formatCad(fees.plates.permitOnlyCad)}.</p>
+      </div>
+    )}
+  </section>
+
+  <section id="extras" aria-labelledby="extras-h" class="scroll-mt-4 border-y border-rule bg-white">
+    <div class="wrap py-12">
+      <h2 id="extras-h" class="m-0 text-[2rem]">Optional extras</h2>
+      <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+      <p class="m-0 max-w-[44rem]">You choose these. They are never part of the advertised price, and you can say no.</p>
+      <div class="mt-6 grid gap-6 md:grid-cols-2">
+        <div class="rounded border border-rule bg-paper p-5">
+          <h3 class="m-0 text-xl">{fees.optional.warranty.label}</h3>
+          <p class="mt-2">{formatCad(fees.optional.warranty.amountCadPerYear)} a year, for up to {fees.optional.warranty.maxYears} years. Ask us which units qualify and what it covers.<Confirm note="Warranty provider, coverage and age limits" /></p>
+        </div>
+        <div class="rounded border border-rule bg-paper p-5">
+          <h3 class="m-0 text-xl">{fees.optional.delivery.label}</h3>
+          <p class="mt-2">{formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, or pick it up here at no charge. <a href="/delivery">Delivery details</a><Confirm note="Delivery rate" /></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="pay-h" class="wrap grid gap-8 py-12 lg:grid-cols-2">
+    <div>
+      <h2 id="pay-h" class="m-0 text-[2rem]">Paying and deposits</h2>
+      <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+      <p class="m-0">Funds are held for 10 days to clear, and every unit is paid in full before ownership is transferred.<Confirm note="10 business days or calendar days?" /></p>
+      <p class="mt-3">Want to hold a unit? Call us. Our written deposit terms are being finalized, and we’ll go over them with you before you pay anything.<Confirm note="Paul's deposit terms (lawyer reviewing)" /></p>
+    </div>
+    <div class="rounded border border-rule bg-paper p-6">
+      <h2 class="m-0 text-[1.5rem]">Questions about a price?</h2>
+      <p class="mt-2">Call the sales desk and we’ll go through any number with you.</p>
+      <a href={telHref(dealership.phones.main)} class="btn btn-primary mt-3 tabular">Call {dealership.phones.main}</a>
+    </div>
+  </section>
+</Base>

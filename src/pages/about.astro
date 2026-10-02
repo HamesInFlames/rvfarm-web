@@ -1,0 +1,50 @@
+---
+// About (plan §3b, O18): facts we can stand behind; unverified claims render only in review builds.
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/astro/PageIntro.astro';
+import Placeholder from '../components/astro/Placeholder.astro';
+import Claim from '../components/astro/Claim.astro';
+import dealership from '../data/dealership.json';
+import { publishedUnits } from '../lib/inventory';
+import { telHref } from '../lib/format';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const d = dealership;
+const onLot = (await publishedUnits()).filter((u) => u.status !== 'sold').length;
+const crumbs = [{ name: 'Home', path: '/' }, { name: 'About us', path: '/about' }];
+---
+<Base title="About us" current="/about" jsonLd={[breadcrumbJsonLd(crumbs)]}
+  description="RV Farm sells used trailers, park models and mobile homes at 1841 Hwy 7 in Concord, next door to Vacations on Wheels service and parts.">
+  <PageIntro crumbs={crumbs} title="A used-RV lot on Hwy 7, with the service shop next door"
+    lead={`RV Farm buys, sells, trades and consigns used travel trailers, fifth wheels, park models and mobile homes. Right now there are ${onLot} units on the lot.`} />
+
+  <section aria-label="What we do" class="wrap grid gap-10 py-10 lg:grid-cols-12">
+    <div class="lg:col-span-7 grid gap-4">
+      <p class="m-0">We’re at {d.address.street} in {d.address.city}. {d.sibling.name}, our sister business, does service, parts, warranty and insurance repairs at the same address, so the people who sell you a trailer are a short walk from the people who fix one.</p>
+      <p class="m-0">Every unit we list shows a price that already includes the PDI package and admin fee. We think you should know what you’ll pay before you drive out.</p>
+      <Claim id="family" />
+      <Claim id="experience" />
+      <Claim id="priority" />
+      <div class="mt-2 flex flex-wrap gap-3">
+        <a href="/inventory" class="btn btn-primary">See the units</a>
+        <a href={telHref(d.phones.main)} class="btn btn-secondary tabular">Call {d.phones.main}</a>
+      </div>
+    </div>
+    <div class="lg:col-span-5 grid gap-4">
+      <Placeholder what="the lot and the sales office" />
+      <Placeholder what="the people at the sales desk" ratio="3 / 2" />
+    </div>
+  </section>
+
+  <section aria-labelledby="more-h" class="border-t border-rule bg-paper">
+    <div class="wrap py-10">
+      <h2 id="more-h" class="m-0 text-[1.75rem]">More about us</h2>
+      <ul class="m-0 mt-4 flex list-none flex-wrap gap-3 p-0">
+        <li><a href="/reviews" class="btn btn-secondary">Reviews</a></li>
+        <li><a href="/pricing" class="btn btn-secondary">How our prices work</a></li>
+        <li><a href="/faq" class="btn btn-secondary">Questions</a></li>
+        <li><a href="/contact" class="btn btn-secondary">Contact</a></li>
+      </ul>
+    </div>
+  </section>
+</Base>

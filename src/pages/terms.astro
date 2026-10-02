@@ -1,0 +1,19 @@
+---
+import LegalPage from '../components/astro/LegalPage.astro';
+import dealership from '../data/dealership.json';
+import { telHref } from '../lib/format';
+const d = dealership;
+---
+<LegalPage title="Terms" path="/terms" updated="2026-10-02"
+  description="Terms for using the RV Farm website: prices, availability, payment estimates and photos.">
+  <h2>Prices</h2>
+  <p>Every advertised price includes our PDI package and admin fee. HST and government plate or permit fees are added at sale. Warranty and delivery are optional and listed separately. <a href="/pricing">How our prices work</a>.</p>
+  <h2>Availability</h2>
+  <p>Used units are one of a kind and can sell at any time. We update this site as units come and go, but please call to confirm a unit is still here before you travel to see it.</p>
+  <h2>Payment estimates</h2>
+  <p>Payment figures on this site are estimates to help you plan. They are not an offer of credit. Your actual rate, term and payment depend on the lender and your credit.</p>
+  <h2>Descriptions and photos</h2>
+  <p>We describe each unit as accurately as we can and show real photos of it. Specifications come from the manufacturer where available. If a detail matters to you, ask us to check it before you buy. Photos on this site belong to RV Farm and may not be reused without permission.</p>
+  <h2>Contact</h2>
+  <p>Questions about these terms: call <a href={telHref(d.phones.main)}>{d.phones.main}</a>.</p>
+</LegalPage>

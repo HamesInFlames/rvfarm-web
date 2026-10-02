@@ -1,0 +1,20 @@
+---
+import LegalPage from '../components/astro/LegalPage.astro';
+import dealership from '../data/dealership.json';
+import { telHref } from '../lib/format';
+const d = dealership;
+---
+<LegalPage title="Privacy" path="/privacy" updated="2026-10-02"
+  description="What RV Farm collects through this website, why, and how to ask about your information.">
+  <h2>What we collect</h2>
+  <p>Only what you type into a form on this site: your name, phone number, email address, and what you tell us about the unit you’re interested in or want to sell. We never ask for your social insurance number, date of birth, driver’s licence or banking details on this website.</p>
+  <h2>Why we collect it</h2>
+  <p>To answer your request: call or email you back, arrange a viewing, value a trade-in, quote delivery, or help you start a financing application in person or by phone. We don’t sell your information or add you to a mailing list.</p>
+  <h2>How it reaches us</h2>
+  <p>Form messages are delivered to us by email through a form service (Web3Forms). The site itself doesn’t store what you send.</p>
+  <h2>Cookies and tracking</h2>
+  <p>This site doesn’t use advertising or tracking cookies. If you turn on “Reduce motion”, your browser remembers that choice on your own device.</p>
+  <h2>Your information</h2>
+  <p>You can ask what information we have about you, ask us to correct it, or ask us to delete it. Call us at <a href={telHref(d.phones.main)}>{d.phones.main}</a>.</p>
+  <p>This page follows the principles of Canada’s Personal Information Protection and Electronic Documents Act (PIPEDA).</p>
+</LegalPage>

@@ -2,6 +2,15 @@
 // (Web3Forms redirects to /thanks); with JS it submits in place. Never asks for SIN, DOB or banking details.
 import { useId, useState, type SyntheticEvent } from 'react';
 
+export interface ExtraField {
+  name: string;
+  label: string;
+  type?: 'text' | 'number' | 'select';
+  options?: string[];
+  hint?: string;
+  inputMode?: 'text' | 'numeric' | 'decimal';
+}
+
 export interface LeadFormProps {
   accessKey?: string;
   subject: string;
@@ -14,6 +23,9 @@ export interface LeadFormProps {
   messagePlaceholder?: string;
   phoneDisplay: string;
   privacyHref?: string;
+  /** Up to three extra fields (keeps the form at 8 fields or fewer, plan D12). */
+  extraFields?: ExtraField[];
+  submitLabel?: string;
 }
 
 export default function LeadForm(p: LeadFormProps) {
@@ -112,6 +124,24 @@ export default function LeadForm(p: LeadFormProps) {
         </fieldset>
       )}
 
+      {p.extraFields?.slice(0, 3).map((f) => (
+        <div key={f.name}>
+          <label htmlFor={`${id}-${f.name}`} className={label}>
+            {f.label} <span className="font-normal text-bark-60">(optional)</span>
+          </label>
+          {f.type === 'select' ? (
+            <select id={`${id}-${f.name}`} name={f.name} className={field} defaultValue="">
+              <option value="">Choose one</option>
+              {f.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          ) : (
+            <input id={`${id}-${f.name}`} name={f.name} inputMode={f.inputMode} className={field}
+              aria-describedby={f.hint ? `${id}-${f.name}-hint` : undefined} />
+          )}
+          {f.hint && <p id={`${id}-${f.name}-hint`} className="m-0 mt-1 text-[0.9375rem] text-bark-60">{f.hint}</p>}
+        </div>
+      ))}
+
       <div className="sm:col-span-2">
         <label htmlFor={`${id}-message`} className={label}>{p.messageLabel ?? 'Message'} <span className="font-normal text-bark-60">(optional)</span></label>
         <textarea id={`${id}-message`} name="message" rows={4} className={field} placeholder={p.messagePlaceholder} />
@@ -124,7 +154,7 @@ export default function LeadForm(p: LeadFormProps) {
 
       <div className="sm:col-span-2">
         <button type="submit" className="btn btn-primary min-w-48 text-lg" disabled={state === 'sending'}>
-          {state === 'sending' ? 'Sending…' : 'Send'}
+          {state === 'sending' ? 'Sending…' : (p.submitLabel ?? 'Send')}
         </button>
         {state === 'error' && (
           <p className="m-0 mt-3 font-semibold text-red" role="alert">

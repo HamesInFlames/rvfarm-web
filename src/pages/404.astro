@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import UnitCard from '../components/islands/UnitCard';
+import dealership from '../data/dealership.json';
+import { publishedUnits, cardData } from '../lib/inventory';
+import { telHref } from '../lib/format';
+import { REVIEW } from '../lib/site';
+
+const newest = await Promise.all((await publishedUnits()).filter((u) => u.status !== 'sold').slice(0, 4).map(cardData));
+---
+<Base title="Page not found" noindex>
+  <div class="wrap py-14">
+    <h1 class="m-0 text-[2.25rem] lg:text-[3rem]">That page isn’t here. If it was a unit, it may have sold.</h1>
+    <span class="rule-orange mt-3" aria-hidden="true"></span>
+    <form action="/inventory" method="get" role="search" class="mt-6 flex max-w-[36rem] flex-wrap items-end gap-3">
+      <div class="min-w-0 flex-1">
+        <label for="nf-q" class="mb-1 block font-semibold text-ink">Search the lot</label>
+        <input id="nf-q" name="q" type="search" class="block w-full min-h-12 rounded border-2 border-bark/40 bg-white px-3 text-[1.0625rem]" />
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <p class="mt-4">Or call <a href={telHref(dealership.phones.main)} class="font-semibold tabular">{dealership.phones.main}</a> and we’ll tell you what we have.</p>
+    <h2 class="m-0 mt-12 text-[1.75rem]">Newest on the lot</h2>
+    <ul class="m-0 mt-4 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4">
+      {newest.map((c) => <li class="flex"><UnitCard unit={c} review={REVIEW} /></li>)}
+    </ul>
+    <p class="mt-6"><a href="/inventory" class="btn btn-secondary">See all units</a></p>
+  </div>
+</Base>

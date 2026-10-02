@@ -1,0 +1,76 @@
+---
+// Delivery, pick-up and mobile-home moves. The per-km rate comes from fees.json and is flagged until confirmed.
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/astro/PageIntro.astro';
+import ContactForm from '../components/astro/ContactForm.astro';
+import Confirm from '../components/astro/Confirm.astro';
+import HoursTable from '../components/astro/HoursTable.astro';
+import fees from '../data/fees.json';
+import dealership from '../data/dealership.json';
+import { formatCad, formatCadCents, telHref } from '../lib/format';
+import { withHst } from '../lib/price';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const rate = fees.optional.delivery.ratePerKmCad;
+const examples = [50, 100, 200, 300];
+const crumbs = [{ name: 'Home', path: '/' }, { name: 'Delivery', path: '/delivery' }];
+---
+<Base title="Delivery and pick-up" current="/delivery" jsonLd={[breadcrumbJsonLd(crumbs)]}
+  description={`RV Farm delivers trailers, park models and mobile homes at ${formatCadCents(rate)} per km, or pick yours up at 1841 Hwy 7, Concord.`}>
+  <PageIntro crumbs={crumbs} title="Delivery, pick-up and mobile-home moves"
+    lead="Pick your unit up here at no charge, or we bring it to you. Delivery is optional and never part of the advertised price." />
+
+  <section aria-labelledby="rate-h" class="wrap grid gap-10 py-10 lg:grid-cols-12">
+    <div class="lg:col-span-6">
+      <h2 id="rate-h" class="m-0 text-[2rem]">{formatCadCents(rate)} per kilometre<Confirm note="Delivery rate" /></h2>
+      <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+      <p class="m-0">Measured one way from our lot at {dealership.address.street}, {dealership.address.city}, by the road route. HST is added.</p>
+      <table class="mt-6 w-full border-collapse bg-white tabular">
+        <caption class="pb-2 text-left font-semibold text-ink">What it works out to</caption>
+        <thead>
+          <tr class="border-b-2 border-ink"><th scope="col" class="px-3 py-2 text-left">Distance</th><th scope="col" class="px-3 py-2 text-right">Delivery</th><th scope="col" class="px-3 py-2 text-right">With HST</th></tr>
+        </thead>
+        <tbody>
+          {examples.map((km) => (
+            <tr class="border-b border-rule">
+              <th scope="row" class="px-3 py-2 text-left font-normal">{km} km</th>
+              <td class="px-3 py-2 text-right">{formatCad(km * rate)}</td>
+              <td class="px-3 py-2 text-right">{formatCad(withHst(km * rate))}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div class="lg:col-span-6 grid gap-6">
+      <div class="rounded border border-rule bg-paper p-6">
+        <h2 class="m-0 text-[1.5rem]">Picking it up yourself</h2>
+        <p class="mt-2">Book a time and we’ll have it ready and show you how everything works (that’s the demo in the PDI package). Bring a vehicle rated to tow it, with the right hitch and brake controller.</p>
+        <a href={telHref(dealership.phones.main)} class="btn btn-secondary mt-3 tabular">Book a pick-up: {dealership.phones.main}</a>
+      </div>
+      <div class="rounded border border-rule bg-paper p-6">
+        <h2 class="m-0 text-[1.5rem]">Park models and mobile homes</h2>
+        <p class="mt-2">These move on a licensed hauler with oversize permits. We arrange the move and quote it once we know both addresses.</p>
+        <a href="/sell-or-consign#consign" class="tap font-semibold">Moving one out of a park? See consignment</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="request" aria-labelledby="req-h" class="border-t border-rule bg-paper">
+    <div class="wrap grid gap-8 py-12 lg:grid-cols-12">
+      <div class="lg:col-span-4">
+        <h2 id="req-h" class="m-0 text-[2rem]">Get a delivery quote</h2>
+        <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+        <p class="m-0">Tell us where it’s going and we’ll confirm the distance and price.</p>
+        <div class="mt-6"><HoursTable caption="When we deliver and answer the phone" /></div>
+      </div>
+      <div class="lg:col-span-8">
+        <ContactForm subject="Delivery quote" submitLabel="Get my quote"
+          extraFields={[
+            { name: 'deliver_to', label: 'Town or postal code it’s going to' },
+            { name: 'unit', label: 'Which unit', hint: 'Stock number or name, if you know it' },
+          ]}
+          messageLabel="Site details" messagePlaceholder="Driveway, campground site, gate width, anything tight" />
+      </div>
+    </div>
+  </section>
+</Base>

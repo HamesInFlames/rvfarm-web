@@ -14,6 +14,14 @@ const BANNED = [
   /Toronto'?s largest/i, /voted best/i, /Grand River/i, /\bSIN\b/, /social insurance/i, /date of birth/i,
 ];
 
+// Exact phrases where a banned word is used correctly: promises NOT to collect sensitive data, and a
+// word-for-word historical testimonial. Removed before scanning; anything else still fails.
+const ALLOWED = [
+  /never ask for your SIN, date of birth or banking details/g,
+  /never ask for your social insurance number, date of birth, driver(’|')s licence or banking details/g,
+  /from the RV Farm in Woodbridge this week/g,
+];
+
 const files = [];
 const walk = (dir) => {
   for (const f of readdirSync(dir)) {
@@ -29,7 +37,8 @@ for (const file of files) {
   // Visible text and attribute values only; drop scripts/styles so library code can't trip the list.
   const html = readFileSync(file, 'utf8')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '');
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(new RegExp(ALLOWED.map((r) => r.source).join('|'), 'g'), '');
   for (const re of BANNED) {
     const m = html.match(re);
     if (m) {

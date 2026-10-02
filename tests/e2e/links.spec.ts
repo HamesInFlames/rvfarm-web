@@ -10,7 +10,9 @@ test('every link on every page resolves', async ({ page, baseURL }) => {
   const hrefs = new Map<string, string>(); // href → first page it was found on
   for (const path of builtPages()) {
     const res = await page.goto(path);
-    expect(res?.status(), `${path} itself`).toBe(path === '/404' ? 404 : 200);
+    // The 404 page itself may be served with 200 when requested by name.
+    if (path === '/404') expect([200, 404], '/404 itself').toContain(res?.status());
+    else expect(res?.status(), `${path} itself`).toBe(200);
     const found = await page.$$eval('a[href]', (as) => as.map((a) => a.getAttribute('href')!));
     for (const h of found) if (!hrefs.has(h)) hrefs.set(h, path);
   }

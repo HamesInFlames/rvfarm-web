@@ -1,0 +1,67 @@
+---
+// Financing (plan §3b). No lender is named until Rae confirms one; no SIN, DOB or banking fields anywhere.
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/astro/PageIntro.astro';
+import ContactForm from '../components/astro/ContactForm.astro';
+import Confirm from '../components/astro/Confirm.astro';
+import PaymentEstimator from '../components/islands/PaymentEstimator';
+import fees from '../data/fees.json';
+import { publishedUnits, unitTitle } from '../lib/inventory';
+import { advertisedPrice, ESTIMATE_FOOTNOTE, type Frequency } from '../lib/price';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const units = (await publishedUnits()).filter((u) => u.status !== 'sold' && u.unitPriceCad !== undefined);
+const prices = units.map((u) => advertisedPrice(u.unitPriceCad!)).sort((a, b) => a - b);
+const median = prices[Math.floor(prices.length / 2)] ?? 15000;
+const crumbs = [{ name: 'Home', path: '/' }, { name: 'Financing', path: '/financing' }];
+---
+<Base title="Financing" current="/financing" jsonLd={[breadcrumbJsonLd(crumbs)]}
+  description="Work out a payment on a used trailer or park model at RV Farm, then ask us about financing. No credit details on this website.">
+  <PageIntro crumbs={crumbs} title="Finance today, travel tomorrow"
+    lead="Work out a payment that fits, then talk to us. We never ask for your SIN, date of birth or banking details on this website." />
+
+  <section aria-labelledby="steps-h" class="wrap py-10">
+    <h2 id="steps-h" class="sr-only">How it works</h2>
+    <ol class="m-0 grid list-none gap-6 p-0 md:grid-cols-3">
+      {[
+        ['Pick a budget', 'Use the calculator below. Every unit page also shows an estimated payment.'],
+        ['Tell us the basics', 'Name, phone and what you’re looking at. That’s all we need to start.'],
+        ['We call you', 'We go over your options and the lender’s application with you by phone or at the lot.'],
+      ].map(([h, p], i) => (
+        <li class="border-t-4 border-orange pt-4">
+          <p class="m-0 font-[family-name:var(--font-display)] text-4xl font-bold text-red" aria-hidden="true">{i + 1}</p>
+          <h3 class="m-0 mt-1 text-xl">{h}</h3>
+          <p class="mt-2">{p}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section aria-labelledby="calc-h" class="border-y border-rule bg-paper">
+    <div class="wrap py-12">
+      <h2 id="calc-h" class="m-0 text-[2rem]">Payment calculator</h2>
+      <span class="rule-orange mb-2 mt-2" aria-hidden="true"></span>
+      <p class="mb-6 mt-2 max-w-[44rem]">Starts at {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(median)}, the middle price on our lot today. Type in any price.</p>
+      <PaymentEstimator client:visible priceCad={median} aprPct={fees.estimator.exampleAprPct}
+        termMonths={fees.estimator.termMonths} downCad={fees.estimator.downCad} frequency={fees.estimator.frequency as Frequency} />
+      <p class="mt-4 text-[0.9375rem] text-bark-60">{ESTIMATE_FOOTNOTE()}<Confirm note="Lender and an example rate they'll stand behind" /></p>
+    </div>
+  </section>
+
+  <section id="apply" aria-labelledby="apply-h" class="wrap grid scroll-mt-4 gap-8 py-12 lg:grid-cols-12">
+    <div class="lg:col-span-4">
+      <h2 id="apply-h" class="m-0 text-[2rem]">Ask about financing</h2>
+      <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+      <p class="m-0">This isn’t a credit application. It tells us how to reach you and what you’re after; the lender’s application happens with us, in person or by phone.</p>
+    </div>
+    <div class="lg:col-span-8">
+      <ContactForm subject="Financing" submitLabel="Ask us to call"
+        extraFields={[
+          { name: 'unit_of_interest', label: 'Unit you’re interested in', type: 'select', options: [...units.map(unitTitle), 'Not sure yet'] },
+          { name: 'monthly_budget', label: 'Monthly budget', inputMode: 'numeric', hint: 'A rough number is fine' },
+          { name: 'down_payment', label: 'Down payment', inputMode: 'numeric' },
+        ]}
+        messageLabel="Best time to call, or anything else" />
+    </div>
+  </section>
+</Base>

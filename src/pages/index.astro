@@ -1,68 +1,263 @@
 ---
-// Interim one-page site (plan §3b, O10): replaces the Turnkey site while the full build happens.
-// Name, logo, phone, address, hours, VOW link, "call about inventory". No inventory, no forms.
+// Home (plan §3b). Every number on the page is computed from the data files, never typed in.
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import HoursTable from '../components/astro/HoursTable.astro';
-import logo from '../assets/brand/rv-farm-logo-v2.png';
+import Placeholder from '../components/astro/Placeholder.astro';
+import Confirm from '../components/astro/Confirm.astro';
+import UnitCard from '../components/islands/UnitCard';
 import dealership from '../data/dealership.json';
-import { telHref } from '../lib/format';
+import fees from '../data/fees.json';
+import testimonials from '../data/testimonials.json';
+import {
+  publishedUnits, unitPhotos, cardData, groupOf, TYPE_GROUPS, unitTitle, unitPath,
+} from '../lib/inventory';
+import { advertisedPrice, priceBreakdown, ESTIMATE_FOOTNOTE } from '../lib/price';
+import { formatCad, formatCadCents, telHref } from '../lib/format';
+import { REVIEW } from '../lib/site';
 
 const d = dealership;
+const units = await publishedUnits();
+const onLot = units.filter((u) => u.status !== 'sold');
+const photoCount = onLot.reduce((n, u) => n + unitPhotos(u).length, 0);
+
+// Hero: a real, landscape exterior from the lot. Falls back to the first unit with a photo.
+const heroUnit = units.find((u) => u.slug === '2016-crossroads-32rl') ?? units.find((u) => unitPhotos(u).length > 0);
+const heroPhoto = heroUnit ? unitPhotos(heroUnit)[0] : undefined;
+
+const groups = await Promise.all(
+  TYPE_GROUPS.map(async (g) => {
+    const members = onLot.filter((u) => groupOf(u).slug === g.slug);
+    // Prefer a wide exterior shot for the tile (some units lead with a square or interior photo).
+    const wide = (u: (typeof members)[number]) => { const p = unitPhotos(u)[0]; return p && p.width / p.height >= 1.2; };
+    const withPhoto = members.find(wide) ?? members.find((u) => unitPhotos(u).length > 0);
+    return { ...g, count: members.length, photo: withPhoto ? unitPhotos(withPhoto)[0] : undefined };
+  }),
+).then((list) => list.filter((g) => g.count > 0));
+
+const priced = onLot.filter((u) => u.unitPriceCad !== undefined);
+const under = (n: number) => priced.filter((u) => advertisedPrice(u.unitPriceCad!) <= n).length;
+const chips = [
+  { label: 'Under $10k', href: '/inventory?max=10000', count: under(10_000) },
+  { label: 'Under $15k', href: '/inventory?max=15000', count: under(15_000) },
+  { label: 'Under $20k', href: '/inventory?max=20000', count: under(20_000) },
+  { label: 'Bunkhouses', href: '/inventory?q=bunkhouse', count: onLot.filter((u) => u.bunkhouse).length },
+  ...groups.map((g) => ({ label: g.label, href: `/inventory/type/${g.slug}`, count: g.count })),
+].filter((c) => c.count > 0);
+
+const newest = await Promise.all(onLot.slice(0, 4).map(cardData));
+
+// Worked example for "How our prices work": the lowest-priced unit on the lot.
+const example = [...priced].sort((a, b) => a.unitPriceCad! - b.unitPriceCad!)[0];
+const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
 ---
-<Base title={d.brandName} variant="interim"
-  description="RV Farm sells used travel trailers, park models and mobile homes at 1841 Hwy 7 in Concord, Ontario. Call 905-605-7056 about what's on the lot today.">
-  <section class="wrap grid items-center gap-10 py-10 md:py-16 lg:grid-cols-12">
-    <div class="lg:col-span-7">
-      <p class="eyebrow text-red m-0">Buy · Sell · Trade · Consign</p>
-      <span class="rule-orange mt-3 mb-5" aria-hidden="true"></span>
-      <h1 class="m-0 text-[2.25rem] lg:text-[3.25rem]">Used trailers, park models and mobile homes on Hwy 7 in Concord</h1>
+<Base title={d.brandName} current="/">
+  <!-- 1 Hero: one real photo, real headline in HTML, two buttons. No slider. -->
+  <section class="wrap grid items-center gap-8 py-10 md:py-14 lg:grid-cols-12">
+    <div class="lg:col-span-6">
+      <p class="eyebrow m-0 text-red">Buy · Sell · Trade · Consign</p>
+      <span class="rule-orange mb-5 mt-3" aria-hidden="true"></span>
+      <h1 class="m-0 text-[2.5rem] lg:text-[3.5rem]">Used trailers and park models on Hwy 7 in Concord</h1>
       <p class="mt-5 max-w-[34rem] text-lead">
-        Our new website is on its way. Until it's ready, call us about what's on the lot today.
-        We'll tell you what we have, what it costs and when you can see it.
+        {onLot.length} units on the lot, every one listed with the fees already in the price. Come see them, or call and we’ll walk you through one on the phone.
       </p>
       <div class="mt-7 flex flex-wrap gap-3">
-        <a href={telHref(d.phones.main)} class="btn btn-primary text-xl px-6 min-h-14 tabular">Call {d.phones.main}</a>
-        <a href={d.address.mapsUrl} class="btn btn-secondary text-lg min-h-14" target="_blank" rel="noopener">
-          Get directions<span class="sr-only"> (opens Google Maps in a new tab)</span>
-        </a>
+        <a href="/inventory" class="btn btn-primary min-h-14 px-6 text-lg">See the {onLot.length} units</a>
+        <a href={telHref(d.phones.main)} class="btn btn-secondary min-h-14 px-6 text-lg tabular">Call {d.phones.main}</a>
       </div>
     </div>
-    <div class="lg:col-span-5">
-      <div class="mx-auto max-w-[26rem] rounded border border-rule bg-white p-4">
-        <Image src={logo} alt={`${d.brandName} logo: a travel trailer on a country road under the sun. ${d.tagline}`}
-          width={400} height={400} densities={[1, 2]} loading="eager" fetchpriority="high" class="h-auto w-full" />
+    {heroPhoto && heroUnit && (
+      <figure class="m-0 lg:col-span-6">
+        <a href={unitPath(heroUnit)} class="block overflow-hidden rounded border border-rule">
+          <Image src={heroPhoto} alt={`${unitTitle(heroUnit)} on our lot`} widths={[480, 720, 960, 1280]}
+            sizes="(min-width: 1024px) 620px, calc(100vw - 2rem)" format="webp" quality={70}
+            loading="eager" fetchpriority="high" class="hero-kb aspect-[4/3] h-auto w-full object-cover" />
+        </a>
+        <figcaption class="mt-2 text-[0.9375rem] text-bark-60">On the lot now: {unitTitle(heroUnit)}</figcaption>
+      </figure>
+    )}
+  </section>
+
+  <!-- 2 Search strip, directly under the hero. A real GET form; the inventory page reads the same URL. -->
+  <section aria-label="Search the lot" class="border-b border-rule bg-white">
+    <form action="/inventory" method="get" role="search" class="wrap grid items-end gap-3 py-5 sm:grid-cols-[1fr_auto_auto]">
+      <div>
+        <label for="home-q" class="mb-1 block font-semibold text-ink">What are you looking for?</label>
+        <input id="home-q" name="q" type="search" placeholder="e.g. bunkhouse, park model, Puma"
+          class="block w-full min-h-12 rounded border-2 border-bark/40 bg-white px-3 text-[1.0625rem]" />
+      </div>
+      <div>
+        <label for="home-max" class="mb-1 block font-semibold text-ink">Price up to</label>
+        <select id="home-max" name="max" class="block min-h-12 w-full rounded border-2 border-bark/40 bg-white px-3 text-[1.0625rem] sm:w-44">
+          <option value="">Any price</option>
+          {[10_000, 15_000, 20_000, 30_000, 50_000].filter((n) => under(n) > 0).map((n) => <option value={n}>{formatCad(n)}</option>)}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary min-w-32">Search</button>
+    </form>
+  </section>
+
+  <!-- 3 Type tiles with live counts and real photos. -->
+  <section aria-labelledby="types-h" class="wrap py-14">
+    <h2 id="types-h" class="m-0 text-[2rem] lg:text-[2.5rem]">Shop by type</h2>
+    <span class="rule-orange mb-6 mt-2" aria-hidden="true"></span>
+    <ul class="m-0 grid list-none grid-cols-2 gap-4 p-0 lg:grid-cols-5">
+      {groups.map((g) => (
+        <li>
+          <a href={`/inventory/type/${g.slug}`} class="group block h-full overflow-hidden rounded border border-rule bg-paper text-ink no-underline hover:border-red">
+            {g.photo
+              ? <Image src={g.photo} alt="" width={480} height={360} format="webp" quality={62} class="aspect-[4/3] h-auto w-full object-cover" />
+              : <div class="aspect-[4/3] bg-sand"></div>}
+            <span class="block p-3">
+              <span class="block font-[family-name:var(--font-display)] text-xl font-bold leading-tight group-hover:text-red">{g.label}</span>
+              <span class="block text-[0.9375rem] text-bark-60">{g.count} on the lot</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- 4 Shortcut chips: only ones that match at least one unit. -->
+    <h3 class="m-0 mt-10 text-xl">Quick picks</h3>
+    <ul class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
+      {chips.map((c) => (
+        <li><a href={c.href} class="inline-flex min-h-11 items-center rounded border border-bark/40 bg-white px-4 font-semibold text-ink no-underline hover:border-red">{c.label} <span class="ml-1 font-normal text-bark-60">({c.count})</span></a></li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- 5 Newest on the lot. -->
+  <section aria-labelledby="newest-h" class="border-t border-rule bg-paper">
+    <div class="wrap py-14">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 id="newest-h" class="m-0 text-[2rem] lg:text-[2.5rem]">Newest on the lot</h2>
+          <span class="rule-orange mt-2" aria-hidden="true"></span>
+        </div>
+        <a href="/inventory" class="tap font-semibold">See all {onLot.length} units</a>
+      </div>
+      <ul class="m-0 mt-6 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4" aria-describedby="home-estimate">
+        {newest.map((c) => <li class="flex"><UnitCard unit={c} review={REVIEW} /></li>)}
+      </ul>
+      <p id="home-estimate" class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and licensing extra. * {ESTIMATE_FOOTNOTE()}</p>
+    </div>
+  </section>
+
+  <!-- 6 How our prices work: the differentiator, shown with a real unit. -->
+  {example && (
+    <section aria-labelledby="price-h" class="wrap grid gap-10 py-14 lg:grid-cols-12">
+      <div class="lg:col-span-6">
+        <h2 id="price-h" class="m-0 text-[2rem] lg:text-[2.5rem]">The price you see is the price before tax</h2>
+        <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+        <p class="m-0 max-w-[36rem]">
+          Every price on this site already includes our PDI, demo and starter kit package and the admin fee. The only things added at the desk are HST and the government plate fee. Warranty and delivery are your choice, and they’re listed separately with their prices.
+        </p>
+        <p class="mt-4"><a href="/pricing" class="tap font-semibold">How our prices work</a></p>
+      </div>
+      <div class="lg:col-span-6">
+        <table class="w-full border-collapse rounded bg-white tabular">
+          <caption class="pb-2 text-left font-semibold text-ink">Example: <a href={unitPath(example)} class="tap">{unitTitle(example)}</a></caption>
+          <tbody>
+            {exampleLines.map((l) => (
+              <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">{l.label}</th><td class="px-3 py-2 text-right">{formatCad(l.amountCad)}</td></tr>
+            ))}
+            <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-semibold">Advertised price</th><td class="px-3 py-2 text-right text-xl font-bold text-red">{formatCad(advertisedPrice(example.unitPriceCad!))}</td></tr>
+            <tr><th scope="row" class="px-3 py-2 text-left font-normal text-bark-60">Added at the desk</th><td class="px-3 py-2 text-right text-bark-60">HST 13% + plates {formatCad(fees.plates.plateAndPermitCad)}</td></tr>
+          </tbody>
+        </table>
+        <Confirm note="Admin fee $599 vs $499; PDI package figure" />
+      </div>
+    </section>
+  )}
+
+  <!-- 7 Buy / Sell / Trade / Consign. -->
+  <section aria-labelledby="bstc-h" class="border-y border-rule bg-white">
+    <div class="wrap py-14">
+      <h2 id="bstc-h" class="m-0 text-[2rem] lg:text-[2.5rem]">Buy, sell, trade or consign</h2>
+      <span class="rule-orange mb-6 mt-2" aria-hidden="true"></span>
+      <ul class="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { h: 'Buy', p: `${onLot.length} used trailers, park models and mobile homes, priced with the fees in.`, href: '/inventory', cta: 'See the units' },
+          { h: 'Sell', p: 'We buy used trailers and RVs outright. Tell us what you have and we’ll make an offer.', href: '/sell-or-consign', cta: 'Sell us your RV' },
+          { h: 'Trade', p: 'Put your current trailer toward one of ours. We value it before you decide.', href: '/sell-or-consign#trade', cta: 'Value my trade' },
+          { h: 'Consign', p: 'We sell it for you from our lot. You keep ownership until it sells.', href: '/sell-or-consign#consign', cta: 'How consignment works' },
+        ].map((t) => (
+          <li class="flex flex-col rounded border border-rule bg-paper p-5">
+            <h3 class="m-0 text-2xl">{t.h}</h3>
+            <p class="mt-2 flex-1">{t.p}</p>
+            <a href={t.href} class="tap mt-2 font-semibold">{t.cta}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8 Financing and 9 Delivery bands. -->
+  <section aria-label="Financing and delivery" class="wrap grid gap-6 py-14 md:grid-cols-2">
+    <div class="rounded bg-red p-6 text-white lg:p-8">
+      <h2 class="m-0 text-[1.75rem] text-white">Work out a payment</h2>
+      <p class="mt-3 text-white">Every unit shows an estimated bi-weekly payment. Change the down payment, term and rate on our calculator, then ask us about financing.</p>
+      <a href="/financing" class="btn mt-4 border-2 border-white bg-white text-red hover:bg-paper hover:text-red">Financing and calculator</a>
+    </div>
+    <div class="rounded border border-rule bg-paper p-6 lg:p-8">
+      <h2 class="m-0 text-[1.75rem]">Delivery and mobile-home moves</h2>
+      <p class="mt-3">Pick it up here, or we deliver at {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km<Confirm note="Delivery rate" />. We also move park models and mobile homes, including permits.</p>
+      <a href="/delivery" class="btn btn-secondary mt-4">Delivery details</a>
+    </div>
+  </section>
+
+  <!-- 10 Facts with numbers, all computed. -->
+  <section aria-label="RV Farm in numbers" class="border-y border-rule bg-white">
+    <ul class="wrap grid list-none gap-6 py-10 sm:grid-cols-3">
+      <li><span class="block font-[family-name:var(--font-display)] text-5xl font-bold text-red tabular">{onLot.length}</span><span class="block">units on the lot right now</span></li>
+      <li><span class="block font-[family-name:var(--font-display)] text-5xl font-bold text-red tabular">{photoCount}</span><span class="block">real photos of them online</span></li>
+      <li><span class="block font-[family-name:var(--font-display)] text-5xl font-bold text-red tabular">{priced.length} of {onLot.length}</span><span class="block">listed with a full price, fees included</span></li>
+    </ul>
+  </section>
+
+  <!-- 11 Testimonials: real, named, dated. No rating badge on RV Farm (plan D10). -->
+  <section aria-labelledby="reviews-h" class="wrap py-14">
+    <h2 id="reviews-h" class="m-0 text-[2rem] lg:text-[2.5rem]">What customers said</h2>
+    <span class="rule-orange mb-6 mt-2" aria-hidden="true"></span>
+    <ul class="m-0 grid list-none gap-6 p-0 md:grid-cols-3">
+      {testimonials.items.slice(0, 3).map((t) => (
+        <li class="rounded border border-rule bg-paper p-5">
+          <blockquote class="m-0"><p class="m-0">“{t.quote}”</p></blockquote>
+          <p class="m-0 mt-3 font-semibold">{t.name}{'place' in t && t.place ? `, ${t.place}` : ''}</p>
+          <p class="m-0 text-[0.9375rem] text-bark-60">Google review, {testimonials.period}</p>
+        </li>
+      ))}
+    </ul>
+    <Confirm note={testimonials.confirm} />
+    <p class="mt-4"><a href="/reviews" class="tap font-semibold">All reviews, and how to leave one</a></p>
+  </section>
+
+  <!-- 12 Service cross-band to Vacations on Wheels. -->
+  <section aria-labelledby="vow-h" class="bg-bark text-sand">
+    <div class="wrap flex flex-wrap items-center justify-between gap-6 py-10">
+      <div class="max-w-[40rem]">
+        <h2 id="vow-h" class="m-0 text-[1.75rem] text-white">Service and parts are next door</h2>
+        <p class="mt-2">{d.sibling.name} repairs RVs and trailers at the same address: appliances, leaks, winterizing, warranty and insurance work.</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href={telHref(d.sibling.phone)} class="btn border-2 border-white text-white hover:bg-white/10 hover:text-white tabular">Call service {d.sibling.phone}</a>
+        <a href={d.sibling.url} target="_blank" rel="noopener" class="btn bg-white text-ink hover:bg-paper hover:text-ink">vacationsonwheels.ca<span class="sr-only"> (opens in a new tab)</span></a>
       </div>
     </div>
   </section>
 
-  <section aria-labelledby="visit" class="border-y border-rule bg-paper">
-    <div class="wrap grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-12">
-      <div class="lg:col-span-5">
-        <h2 id="visit" class="m-0 text-[1.75rem] lg:text-[2.25rem]">Come see the lot</h2>
-        <address class="mt-4 not-italic text-lead">
-          {d.address.street}<br />{d.address.city}, {d.address.region} {d.address.postal}
-        </address>
-        <p class="mt-4">
-          <a href={d.address.mapsUrl} target="_blank" rel="noopener" class="tap font-semibold">
-            Open in Google Maps<span class="sr-only"> (opens in a new tab)</span>
-          </a>
-        </p>
-      </div>
-      <div class="lg:col-span-4">
-        <HoursTable caption="Hours" />
-        <p class="mt-3 text-bark-60">Units come and go. Call ahead and we'll have the one you want ready to look at.</p>
-      </div>
-      <div class="lg:col-span-3">
-        <h2 class="m-0 text-[1.5rem]">Service and parts</h2>
-        <p class="mt-3">{d.sibling.name} fixes RVs, trailers and more at the same address.</p>
-        <p class="mt-2">
-          <a href={telHref(d.sibling.phone)} class="tap font-semibold tabular">{d.sibling.phone}</a>
-        </p>
-        <p class="mt-2">
-          <a href={d.sibling.url} target="_blank" rel="noopener" class="tap">vacationsonwheels.ca<span class="sr-only"> (opens in a new tab)</span></a>
-        </p>
+  <!-- 13 Visit: address, hours, map link. -->
+  <section aria-labelledby="visit-h" class="wrap grid gap-10 py-14 lg:grid-cols-12">
+    <div class="lg:col-span-5">
+      <h2 id="visit-h" class="m-0 text-[2rem]">Come see the lot</h2>
+      <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+      <address class="not-italic text-lead">{d.address.street}<br />{d.address.city}, {d.address.region} {d.address.postal}</address>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href={d.address.mapsUrl} target="_blank" rel="noopener" class="btn btn-primary">Get directions<span class="sr-only"> (opens Google Maps in a new tab)</span></a>
+        <a href="/contact" class="btn btn-secondary">Contact us</a>
       </div>
     </div>
+    <div class="lg:col-span-3"><HoursTable /></div>
+    <div class="lg:col-span-4"><Placeholder what="the lot from Hwy 7" /></div>
   </section>
 </Base>

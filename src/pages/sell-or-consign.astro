@@ -1,0 +1,99 @@
+---
+// Sell, trade or consign (plan §3b). Terms are the old site's, rewritten plainly and flagged for Rae.
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/astro/PageIntro.astro';
+import ContactForm from '../components/astro/ContactForm.astro';
+import Confirm from '../components/astro/Confirm.astro';
+import dealership from '../data/dealership.json';
+import { telHref } from '../lib/format';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const crumbs = [{ name: 'Home', path: '/' }, { name: 'Sell or consign', path: '/sell-or-consign' }];
+const steps = [
+  { h: 'Show us the unit', p: 'Bring it to the lot, or send photos and a short video. If it can’t move, we can pick it up.' },
+  { h: 'We check it and agree a price', p: 'You bring the ownership and keys. We run a lien search (PPSA) and agree the asking price with you.' },
+  { h: 'You sign the consignment agreement', p: 'It sets out the price, our commission and any fees, in writing, before anything is listed.' },
+  { h: 'We sell it and pay you', p: 'We list it on our lot and online, show it and handle the buyer. When it sells, you get the sale price minus our commission and any agreed fees.' },
+];
+---
+<Base title="Sell, trade or consign your RV" current="/sell-or-consign" jsonLd={[breadcrumbJsonLd(crumbs)]}
+  description="Sell your used trailer or RV to RV Farm, trade it in, or let us sell it for you on consignment. Terms in writing, lien check included. Concord, Ontario.">
+  <PageIntro crumbs={crumbs} title="Sell us your RV, trade it in, or let us sell it for you"
+    lead="Three ways to move on from the trailer you have. Tell us about it and we’ll call you back with options and numbers." />
+
+  <section aria-label="Your three options" class="wrap py-10">
+    <div class="grid gap-6 md:grid-cols-3">
+      <article id="sell" class="scroll-mt-4 rounded border border-rule bg-paper p-6">
+        <h2 class="m-0 text-[1.75rem]">Sell it to us</h2>
+        <p class="mt-3">We buy used travel trailers, fifth wheels, park models and mobile homes. You get paid once the deal is done and the ownership is transferred. No listing, no strangers at your door.</p>
+      </article>
+      <article id="trade" class="scroll-mt-4 rounded border border-rule bg-paper p-6">
+        <h2 class="m-0 text-[1.75rem]">Trade it in</h2>
+        <p class="mt-3">Put your current unit toward one of ours. We value it first, so you know the number before you choose.</p>
+      </article>
+      <article id="consign" class="scroll-mt-4 rounded border border-rule bg-paper p-6">
+        <h2 class="m-0 text-[1.75rem]">Consign it</h2>
+        <p class="mt-3">We sell it for you from our lot. You keep ownership until it sells.</p>
+        <dl class="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+          <dt class="font-semibold">Commission</dt><dd class="m-0">20% of the sale price, not counting any repairs needed<Confirm note="Current consignment commission" /></dd>
+          <dt class="font-semibold">Lien check</dt><dd class="m-0">We run a PPSA search before listing</dd>
+          <dt class="font-semibold">Payout</dt><dd class="m-0">After it sells. It can take up to 90 days<Confirm note="Payout timeline" /></dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="how-h" class="border-y border-rule bg-white">
+    <div class="wrap py-12">
+      <h2 id="how-h" class="m-0 text-[2rem]">How consignment works</h2>
+      <span class="rule-orange mb-6 mt-2" aria-hidden="true"></span>
+      <ol class="m-0 grid list-none gap-6 p-0 md:grid-cols-4">
+        {steps.map((s, i) => (
+          <li class="border-t-4 border-orange pt-4">
+            <p class="m-0 font-[family-name:var(--font-display)] text-4xl font-bold text-red tabular" aria-hidden="true">{i + 1}</p>
+            <h3 class="m-0 mt-1 text-xl">{s.h}</h3>
+            <p class="mt-2">{s.p}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="mobile-h" class="wrap grid gap-8 py-12 lg:grid-cols-12">
+    <div class="lg:col-span-7">
+      <h2 id="mobile-h" class="m-0 text-[2rem]">Mobile homes 12 feet wide and up</h2>
+      <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+      <p class="m-0">If your park has told you the trailer has to go, call us. Many of these homes have had their wheels taken off. We handle the move:</p>
+      <ul class="mt-3 grid gap-1 pl-5">
+        <li>Oversize permits and Ministry of Transportation requirements</li>
+        <li>Putting the axles, wheels and tow bar back on</li>
+        <li>Taking down decks, add-a-rooms and sheds, and clearing the site</li>
+        <li>Heavy-duty trucks to bring it to our lot to recondition and sell</li>
+      </ul>
+      <Confirm note="Mobile-home removal service and terms still offered?" />
+    </div>
+    <div class="lg:col-span-5 rounded border border-rule bg-paper p-6">
+      <h3 class="m-0 text-xl">Rather talk it through?</h3>
+      <p class="mt-2">Call and ask for the sales desk.</p>
+      <a href={telHref(dealership.phones.main)} class="btn btn-primary mt-3 tabular">Call {dealership.phones.main}</a>
+    </div>
+  </section>
+
+  <section id="form" aria-labelledby="form-h" class="border-t border-rule bg-paper">
+    <div class="wrap grid gap-8 py-12 lg:grid-cols-12">
+      <div class="lg:col-span-4">
+        <h2 id="form-h" class="m-0 text-[2rem]">Tell us what you have</h2>
+        <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+        <p class="m-0">We call back within one business day. When we do, we’ll ask for a few photos.</p>
+      </div>
+      <div class="lg:col-span-8">
+        <ContactForm subject="Sell, trade or consign" topics={['Sell it', 'Trade it in', 'Consign it', 'Not sure yet']}
+          extraFields={[
+            { name: 'year_make_model', label: 'Year, make and model', hint: 'e.g. 2015 Jayco Jay Flight 28BHS' },
+            { name: 'length', label: 'Length', hint: 'Roughly is fine' },
+          ]}
+          messageLabel="Anything we should know?" messagePlaceholder="Condition, where it is now, when you want it gone" />
+      </div>
+    </div>
+  </section>
+</Base>

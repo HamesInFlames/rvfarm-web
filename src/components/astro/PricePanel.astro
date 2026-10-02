@@ -63,7 +63,7 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
           <li class="py-1">{fees.optional.delivery.label}: {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, or pick it up here<Confirm note="Delivery rate" /></li>
           <li class="py-1">Plates and permit (government fees): {formatCad(fees.plates.plateAndPermitCad)}</li>
         </ul>
-        {pricingHref && <p class="m-0 px-3 pb-3"><a href={pricingHref}>How our prices work</a></p>}
+        {pricingHref && <p class="m-0 px-3 pb-3"><a href={pricingHref} class="tap">How our prices work</a></p>}
       </details>
     </>
   ) : sold ? (

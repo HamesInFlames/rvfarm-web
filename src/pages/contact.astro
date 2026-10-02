@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/astro/PageIntro.astro';
+import ContactForm from '../components/astro/ContactForm.astro';
+import HoursTable from '../components/astro/HoursTable.astro';
+import Placeholder from '../components/astro/Placeholder.astro';
+import Confirm from '../components/astro/Confirm.astro';
+import dealership from '../data/dealership.json';
+import { telHref } from '../lib/format';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const d = dealership;
+const crumbs = [{ name: 'Home', path: '/' }, { name: 'Contact', path: '/contact' }];
+---
+<Base title="Contact and directions" current="/contact" jsonLd={[breadcrumbJsonLd(crumbs)]}
+  description={`Call RV Farm at ${d.phones.main} or visit us at ${d.address.street}, ${d.address.city}, ON. Hours, directions and a contact form.`}>
+  <PageIntro crumbs={crumbs} title="Call, visit or send us a note" />
+
+  <section id="map" aria-label="Phone, address and hours" class="wrap grid scroll-mt-4 gap-10 py-10 lg:grid-cols-12">
+    <div class="lg:col-span-4">
+      <h2 class="m-0 text-[1.5rem]">Call</h2>
+      <a href={telHref(d.phones.main)} class="tap font-[family-name:var(--font-display)] text-4xl font-bold tabular">{d.phones.main}</a>
+      {d.email
+        ? <p class="mt-2"><a href={`mailto:${d.email}`}>{d.email}</a></p>
+        : <p class="m-0"><Confirm note="Which email address to publish" /></p>}
+      <h2 class="m-0 mt-8 text-[1.5rem]">Visit</h2>
+      <address class="mt-2 not-italic text-lead">{d.address.street}<br />{d.address.city}, {d.address.region} {d.address.postal}</address>
+      <a href={d.address.mapsUrl} target="_blank" rel="noopener" class="btn btn-primary mt-4">Get directions<span class="sr-only"> (opens Google Maps in a new tab)</span></a>
+    </div>
+    <div class="lg:col-span-4">
+      <HoursTable caption="Hours" />
+      <p class="mt-3 text-bark-60">Coming on a weekend? Call ahead so the unit you want is ready to look at.</p>
+    </div>
+    <div class="lg:col-span-4">
+      <Placeholder what="the lot entrance from Hwy 7" />
+    </div>
+  </section>
+
+  <section aria-labelledby="service-h" class="wrap pb-10">
+    <div class="rounded border border-rule bg-paper p-6">
+      <h2 id="service-h" class="m-0 text-[1.5rem]">Service or parts? That’s {d.sibling.name}</h2>
+      <p class="mt-2">Same address, separate phone: <a href={telHref(d.sibling.phone)} class="font-semibold tabular">{d.sibling.phone}</a>.</p>
+      <a href={d.sibling.url} target="_blank" rel="noopener" class="tap">vacationsonwheels.ca<span class="sr-only"> (opens in a new tab)</span></a>
+    </div>
+  </section>
+
+  <section aria-labelledby="form-h" class="border-t border-rule bg-paper">
+    <div class="wrap grid gap-8 py-12 lg:grid-cols-12">
+      <div class="lg:col-span-4">
+        <h2 id="form-h" class="m-0 text-[2rem]">Send us a note</h2>
+        <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
+        <p class="m-0">We call back within one business day.</p>
+      </div>
+      <div class="lg:col-span-8">
+        <ContactForm subject="Contact" topics={['General question', 'A unit', 'Selling or consigning', 'Financing']} />
+      </div>
+    </div>
+  </section>
+</Base>
