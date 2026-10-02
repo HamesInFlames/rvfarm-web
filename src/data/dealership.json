@@ -1,0 +1,56 @@
+{
+  "brandName": "RV Farm",
+  "legalName": "RV Farm",
+  "tagline": "We're closer than you think!",
+  "siteUrl": "https://rvfarm.ca",
+  "description": "Used travel trailers, fifth wheels, park models and mobile homes at 1841 Hwy 7 in Concord, Ontario.",
+  "address": {
+    "street": "1841 Hwy 7",
+    "city": "Concord",
+    "region": "ON",
+    "postal": "L4K 1V4",
+    "country": "CA",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=1841+Highway+7%2C+Concord%2C+ON+L4K+1V4"
+  },
+  "phones": {
+    "main": "905-605-7056",
+    "tollFree": null,
+    "sms": null
+  },
+  "email": null,
+  "timeZone": "America/Toronto",
+  "hours": {
+    "mon": ["09:00", "17:00"],
+    "tue": ["09:00", "17:00"],
+    "wed": ["09:00", "17:00"],
+    "thu": ["09:00", "17:00"],
+    "fri": ["09:00", "17:00"],
+    "sat": ["10:00", "17:00"],
+    "sun": null
+  },
+  "closedDayNote": { "sun": "By appointment" },
+  "holidayNote": "",
+  "memberships": [],
+  "social": {
+    "facebook": "https://www.facebook.com/theRVfarm",
+    "instagram": "https://www.instagram.com/theRVFarm",
+    "youtube": "https://www.youtube.com/@thervfarm"
+  },
+  "sibling": {
+    "name": "Vacations on Wheels",
+    "what": "Service and parts",
+    "url": "https://vacationsonwheels.ca",
+    "phone": "905-738-1253"
+  },
+  "confirm": [
+    "legalName: registered name once \"The\" is dropped (lawyer filing)",
+    "siteUrl: launch domain rvfarm.ca vs thervfarm.ca (80 §4 vs vault CLAUDE.md)",
+    "phones.tollFree: is 1-855-844-0068 still live? Left out until confirmed",
+    "phones.sms: is there a text-capable line? The sticky bar shows Text only when set",
+    "email: which address to publish (none on the current site)",
+    "hours: four versions conflict; these are from the current RV Farm site (Mon–Fri 9–5, Sat 10–5, Sun by appointment)",
+    "memberships: Priority RV Network still current?",
+    "social: are these the accounts to link (Facebook theRVfarm, Instagram theRVFarm, YouTube @thervfarm)?",
+    "tagline: is \"We're closer than you think!\" final, and what does it refer to?"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "pdiPackage": {
+    "label": "PDI, demo and starter kit",
+    "amountCad": 2995,
+    "includedInAdvertisedPrice": true
+  },
+  "admin": {
+    "label": "Admin and licensing",
+    "amountCad": 599,
+    "includedInAdvertisedPrice": true
+  },
+  "hstRate": 0.13,
+  "plates": {
+    "plateAndPermitCad": 72,
+    "permitOnlyCad": 32,
+    "note": "Government plate and permit fees, paid at sale"
+  },
+  "optional": {
+    "warranty": { "label": "Extended warranty", "amountCadPerYear": 1995, "maxYears": 5 },
+    "delivery": { "label": "Delivery", "ratePerKmCad": 6.5 }
+  },
+  "estimator": {
+    "exampleAprPct": 7.9,
+    "termMonths": 60,
+    "downCad": 500,
+    "frequency": "biweekly"
+  },
+  "confirm": [
+    "admin.amountCad: $599 (Paul) vs $499 (Rae); one value here re-prices the whole site",
+    "pdiPackage.amountCad: $2,995 on the bill of sale; Paul said about $3,000",
+    "pdiPackage.label: customer-facing name (\"PDI package\" vs \"road-ready package\") and exactly what's in it",
+    "optional.warranty: provider, coverage and age limits",
+    "optional.delivery: is $6.50/km the published rate?",
+    "estimator: lender and an example rate they'll stand behind (7.9% / 60 months / $500 down is the old site's calculator)"
+  ]
+}
