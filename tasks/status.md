@@ -24,5 +24,26 @@
 - **Pushed (Oct 2, James's OK):** `interim` (eb0f3d6) and `dev` (ed6c6ea) to origin.
 - **Phase 2 (6:04–6:27 pm):** home (split hero with a real lot photo, search strip, type tiles with counts, quick picks, newest 4, "price you see" worked example, buy/sell/trade/consign, financing + delivery bands, computed facts, 3 testimonials, VOW band, visit block), `/sell-or-consign`, `/financing`, `/delivery`, `/pricing`, `/about` (unverified claims via `claims.json`, review builds only), `/reviews`, `/faq` (FAQPage JSON-LD), `/contact`, `/privacy` `/terms` `/accessibility` (drafts), `/sitemap`, `/404`, `robots.txt` (Disallow all unless `PUBLIC_ALLOW_INDEX=1`). LeadForm gained optional extra fields. `scripts/confirm-report.mjs` → `docs/confirm-report.md` (120 items). Global link underline restored (Tailwind preflight removed it; axe link-in-text-block).
 - **Verification (Phase 2, actual):** `npm run verify` green: contrast, unit 18/18, check 0/0/0, build 40 pages, content grep 0 hits (allowlist: two "we never ask for SIN/DOB" lines and one verbatim testimonial naming Woodbridge), Playwright 121/121 + 34 screenshot tests. Lighthouse mobile median of 3 on 16 page types: performance 95–100, a11y/BP/SEO 100 everywhere; LCP assertion fails only on `/inventory` (2.84 s). Screenshots reviewed at 1440/375; fixed hero contrast (moved text off the photo), facts row alignment, interior photo on a type tile.
-- **What's next:** Phase 3 per `tasks/todo.md`.
+- **Phase 3, done so far (6:27–6:40 pm, commit ce8fe35):** inventory filter rewritten as server-rendered controls + 3 KB script over static cards (decision logged): `/inventory` LCP 2.84 → 1.90 s, perf 99, CLS 0. Phone filter toggle (no layout shift). Unit pages print as a 2-page spec sheet (checked as PDF). `tests/e2e/filter.spec.ts` (6 tests incl. no-JS). `npm run verify` green: Playwright 127/127. Repo `.git` 57 MB (budget 60).
+- **Phase 3, in progress — Opus code review (fresh context) returned 16 findings; NONE FIXED YET.** Work them in this order:
+  - **High 1** `src/layouts/Base.astro`: canonical/og:url end in `.html` (`/inventory.html`, `/index.html`) because of `build.format: 'file'`. Strip `.html` and `/index`; optionally Caddy 301 `*.html` → clean URL.
+  - **High 2** `Dockerfile`: Railway passes service variables to a Dockerfile build only via `ARG`. Add `ARG`/`ENV` for `PUBLIC_WEB3FORMS_KEY`, `PUBLIC_ALLOW_INDEX`, `PUBLIC_REVIEW` (+ a site-origin var for #15) before `npm run build`. Without it forms and indexing can never be switched on.
+  - **Med 3** `PricePanel.astro`: plates ($72) listed under "Optional extras". Move to "Added at sale: HST + plates".
+  - **Med 4** "Admin and licensing" is included, but copy says "HST and licensing are extra" (InventoryListing, inventory/index, index, [slug]). Vault `forms/bill-of-sale/README.md` line 35: admin & licensing *replaces* "admin + ownership + plate", so the separate $72 plates line on `/pricing` and the panel may double-count. Change copy to "HST and the government plate fee" only if plates really are separate; add a `plates` item to `fees.confirm` either way and ask Rae.
+  - **Med 5** `LeadForm.tsx`: focus moves before `aria-invalid`/`aria-describedby` render, so screen readers don't hear the error. Focus in a `useEffect` after errors render, or add a `role="alert"` summary.
+  - **Med 6** `LeadForm.tsx`: without a key, no-JS POSTs an empty key (Web3Forms error page); with JS it says "try again". When there's no key, render a call block instead of the form; `noValidate` only after hydration; `required` on name.
+  - **Med 7** testimonials ship in production although permission is `[confirm]`. Gate like `Claim.astro` (`confirmed` flag); hide the home section and the quotes on `/reviews` until confirmed.
+  - **Med 8** unconfirmed fees and terms render as fact in production. Run `confirm-report --strict` in the Docker build when `PUBLIC_ALLOW_INDEX=1` (launch gate), not on previews.
+  - **Low 9** filter `replaceState` drops the hash and utm/gclid params; keep them.
+  - **Low 10** `?max=` off-step leaves no radio checked; snap to the nearest step.
+  - **Low 11** lightbox counts the hero twice ("Photo 1 of 16" for 15); dedupe by href.
+  - **Low 12** card payment hard-codes "bi-weekly" and whole dollars; use the `fees.json` frequency and cents, so it matches the panel ($232.31).
+  - **Low 13** sold units' meta description still advertises a price; skip it when sold.
+  - **Low 14** `delivery.astro` "measured one way… by the road route" is unflagged; add a Confirm.
+  - **Low 15** no-JS form redirect goes to `https://rvfarm.ca/thanks` (unconfirmed domain); use a site-origin env var.
+  - **Low 16** Caddy trailing-slash redirect drops the query string; keep `{query}`. Consider HSTS.
+- **Running when stopped:** a full Lighthouse run (background) after the filter rewrite; results in `test-results/lighthouse/` (not committed). Rerun with `npx lhci autorun`.
+- **Still to do in Phase 3:** the fixes above → `npm run verify` → Lighthouse → screenshots → commit; Lighthouse against the Railway URL once deployed; a real mid-range Android check (James's phone).
+- **Not pushed:** Phase 2 (1645272) and Phase 3 (ce8fe35) are local on `dev`; ask James before pushing.
+- **What's next:** start with review High 1 and High 2, then Med 3–8.
 - **Findings for James:** `kimconsultant.net` (apex) doesn't resolve in DNS; only `www.kimconsultant.net` does. The footer links to `www`.
