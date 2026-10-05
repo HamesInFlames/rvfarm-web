@@ -28,7 +28,9 @@ const {
   noindex = false,
   preloadImage,
 } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// build.format 'file' makes Astro.url.pathname end in .html at build time; canonicals use the clean URL.
+const cleanPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/') || '/';
+const canonical = new URL(cleanPath, Astro.site).href;
 const fullTitle = title === dealership.brandName ? `${title} · Used trailers and park models in Concord, ON` : `${title} · ${dealership.brandName}`;
 const ld = [localBusinessJsonLd(), ...jsonLd];
 ---

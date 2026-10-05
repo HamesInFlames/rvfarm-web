@@ -1,6 +1,6 @@
 // The one lead form (plan D12, §1b #3). A real <form method="post"> to Web3Forms, so it works without JS
 // (Web3Forms redirects to /thanks); with JS it submits in place. Never asks for SIN, DOB or banking details.
-import { useId, useState, type SyntheticEvent } from 'react';
+import { useEffect, useId, useRef, useState, type SyntheticEvent } from 'react';
 
 export interface ExtraField {
   name: string;
@@ -32,6 +32,27 @@ export default function LeadForm(p: LeadFormProps) {
   const id = useId();
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Browser validation only applies until React takes over (no-JS visitors still get the required checks).
+  const [hydrated, setHydrated] = useState(false);
+  const [focusError, setFocusError] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => setHydrated(true), []);
+  // Move focus only after the error text and aria-invalid have rendered, so screen readers announce them.
+  useEffect(() => {
+    if (focusError) formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [focusError]);
+
+  // No form key in this build: a form that can't send would lose the lead, so show how to reach us instead.
+  if (!p.accessKey) {
+    const tel = `tel:+1${p.phoneDisplay.replace(/\D/g, '')}`;
+    return (
+      <div className="rounded border-2 border-rule bg-white p-5">
+        <p className="m-0 text-lead font-semibold">Call us and we’ll take it from there.</p>
+        <p className="mt-2">Our online form isn’t switched on yet. The sales desk answers at <a href={tel} className="font-semibold">{p.phoneDisplay}</a>.</p>
+        <a href={tel} className="btn btn-primary mt-3 tabular">Call {p.phoneDisplay}</a>
+      </div>
+    );
+  }
 
   async function onSubmit(e: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     const form = e.currentTarget;
@@ -44,13 +65,11 @@ export default function LeadForm(p: LeadFormProps) {
     if (phone && phone.length < 10) next.phone = 'That phone number looks short. Include the area code.';
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) next.email = 'That email address doesn’t look right.';
     setErrors(next);
+    e.preventDefault();
     if (Object.keys(next).length) {
-      e.preventDefault();
-      form.querySelector<HTMLElement>(`[aria-invalid="true"], #${CSS.escape(`${id}-${Object.keys(next)[0]}`)}`)?.focus();
+      setFocusError((n) => n + 1);
       return;
     }
-    e.preventDefault();
-    if (!p.accessKey) { setState('error'); return; } // build without PUBLIC_WEB3FORMS_KEY: ask them to call instead
     setState('sending');
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
@@ -80,7 +99,13 @@ export default function LeadForm(p: LeadFormProps) {
   const invalid = (k: string) => (errors[k] ? { 'aria-invalid': true, 'aria-describedby': `${id}-${k}-err` } : {});
 
   return (
-    <form action="https://api.web3forms.com/submit" method="post" onSubmit={onSubmit} noValidate className="grid gap-4 sm:grid-cols-2">
+    <form ref={formRef} action="https://api.web3forms.com/submit" method="post" onSubmit={onSubmit} noValidate={hydrated}
+      className="grid gap-4 sm:grid-cols-2">
+      {Object.keys(errors).length > 0 && (
+        <p role="alert" className="m-0 font-semibold text-red sm:col-span-2">
+          Please check {Object.keys(errors).length === 1 ? 'the field' : `the ${Object.keys(errors).length} fields`} marked below.
+        </p>
+      )}
       <input type="hidden" name="access_key" value={p.accessKey ?? ''} />
       <input type="hidden" name="subject" value={p.subject} />
       <input type="hidden" name="from_name" value="RV Farm website" />
@@ -96,7 +121,7 @@ export default function LeadForm(p: LeadFormProps) {
 
       <div className="sm:col-span-2">
         <label htmlFor={`${id}-name`} className={label}>Your name</label>
-        <input id={`${id}-name`} name="name" autoComplete="name" className={field} {...invalid('name')} />
+        <input id={`${id}-name`} name="name" autoComplete="name" required className={field} {...invalid('name')} />
         {err('name')}
       </div>
       <div>

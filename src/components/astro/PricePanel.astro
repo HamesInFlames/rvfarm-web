@@ -49,6 +49,8 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
       </table>
       <Confirm note="Admin fee $599 vs $499; PDI package figure and name" />
 
+      <p class="m-0 mt-3 text-[0.9375rem]">Added at sale: HST (13%) and the government plate and permit fee ({formatCad(fees.plates.plateAndPermitCad)})<Confirm note="Are plates separate, or already in admin & licensing?" /></p>
+
       {pay && pay.perPeriod > 0 && (
         <p class="m-0 mt-4">
           Est. <strong class="tabular">{formatCadCents(pay.perPeriod)}</strong> {FREQUENCY_LABEL[fees.estimator.frequency as Frequency]}*
@@ -61,7 +63,6 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
         <ul class="m-0 list-none px-3 pb-3 text-[0.9375rem]">
           <li class="py-1">{fees.optional.warranty.label}: {formatCad(fees.optional.warranty.amountCadPerYear)} a year, up to {fees.optional.warranty.maxYears} years<Confirm note="Warranty provider, coverage, age limits" /></li>
           <li class="py-1">{fees.optional.delivery.label}: {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, or pick it up here<Confirm note="Delivery rate" /></li>
-          <li class="py-1">Plates and permit (government fees): {formatCad(fees.plates.plateAndPermitCad)}</li>
         </ul>
         {pricingHref && <p class="m-0 px-3 pb-3 print:hidden"><a href={pricingHref} class="tap">How our prices work</a></p>}
       </details>

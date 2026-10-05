@@ -2,7 +2,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { advertisedPrice, examplePayment } from './price';
+import { advertisedPrice, examplePayment, FREQUENCY_LABEL, type Frequency } from './price';
+import fees from '../data/fees.json';
 import { formatNumber } from './format';
 
 export type Unit = CollectionEntry<'inventory'>['data'];
@@ -84,6 +85,8 @@ export interface CardData {
   sleeps?: number;
   price?: number;
   payment?: number;
+  /** "bi-weekly", from fees.json estimator.frequency. */
+  paymentFrequency?: string;
   photoCount: number;
   image?: { src: string; srcset: string; width: number; height: number; alt: string };
   confirm: string[];
@@ -119,6 +122,7 @@ export async function cardData(u: Unit): Promise<CardData> {
     sleeps: u.sleeps,
     price: u.unitPriceCad !== undefined ? advertisedPrice(u.unitPriceCad) : undefined,
     payment: u.unitPriceCad !== undefined ? examplePayment(u.unitPriceCad).perPeriod : undefined,
+    paymentFrequency: FREQUENCY_LABEL[fees.estimator.frequency as Frequency],
     photoCount: photos.length,
     image,
     confirm: u.confirm,

@@ -16,8 +16,15 @@
     "note": "Government plate and permit fees, paid at sale"
   },
   "optional": {
-    "warranty": { "label": "Extended warranty", "amountCadPerYear": 1995, "maxYears": 5 },
-    "delivery": { "label": "Delivery", "ratePerKmCad": 6.5 }
+    "warranty": {
+      "label": "Extended warranty",
+      "amountCadPerYear": 1995,
+      "maxYears": 5
+    },
+    "delivery": {
+      "label": "Delivery",
+      "ratePerKmCad": 6.5
+    }
   },
   "estimator": {
     "exampleAprPct": 7.9,
@@ -31,6 +38,7 @@
     "pdiPackage.label: customer-facing name (\"PDI package\" vs \"road-ready package\") and exactly what's in it",
     "optional.warranty: provider, coverage and age limits",
     "optional.delivery: is $6.50/km the published rate?",
-    "estimator: lender and an example rate they'll stand behind (7.9% / 60 months / $500 down is the old site's calculator)"
+    "estimator: lender and an example rate they'll stand behind (7.9% / 60 months / $500 down is the old site's calculator)",
+    "plates: the bill of sale says admin & licensing replaces admin + ownership + plate. If plates ($72/$32) are already in it, remove the separate plates line so it isn't counted twice"
   ]
 }

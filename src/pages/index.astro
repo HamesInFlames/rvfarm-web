@@ -46,6 +46,8 @@ const chips = [
 ].filter((c) => c.count > 0);
 
 const newest = await Promise.all(onLot.slice(0, 4).map(cardData));
+// Testimonials show in production only once reuse permission is confirmed (testimonials.json).
+const showQuotes = testimonials.confirmed || REVIEW;
 
 // Worked example for "How our prices work": the lowest-priced unit on the lot.
 const example = [...priced].sort((a, b) => a.unitPriceCad! - b.unitPriceCad!)[0];
@@ -139,7 +141,7 @@ const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
       <ul class="m-0 mt-6 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4" aria-describedby="home-estimate">
         {newest.map((c) => <li class="flex"><UnitCard unit={c} review={REVIEW} /></li>)}
       </ul>
-      <p id="home-estimate" class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and licensing extra. * {ESTIMATE_FOOTNOTE()}</p>
+      <p id="home-estimate" class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and the government plate fee extra. * {ESTIMATE_FOOTNOTE()}</p>
     </div>
   </section>
 
@@ -216,7 +218,7 @@ const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
   </section>
 
   <!-- 11 Testimonials: real, named, dated. No rating badge on RV Farm (plan D10). -->
-  <section aria-labelledby="reviews-h" class="wrap py-14">
+  {showQuotes && <section aria-labelledby="reviews-h" class="wrap py-14">
     <h2 id="reviews-h" class="m-0 text-[2rem] lg:text-[2.5rem]">What customers said</h2>
     <span class="rule-orange mb-6 mt-2" aria-hidden="true"></span>
     <ul class="m-0 grid list-none gap-6 p-0 md:grid-cols-3">
@@ -228,9 +230,9 @@ const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
         </li>
       ))}
     </ul>
-    <Confirm note={testimonials.confirm} />
+    {!testimonials.confirmed && <Confirm note={testimonials.confirm} />}
     <p class="mt-4"><a href="/reviews" class="tap font-semibold">All reviews, and how to leave one</a></p>
-  </section>
+  </section>}
 
   <!-- 12 Service cross-band to Vacations on Wheels. -->
   <section aria-labelledby="vow-h" class="bg-bark text-sand">

@@ -42,7 +42,7 @@ const lines = [
   ...claims.items.filter((c) => !c.confirmed).map((c) => `- [ ] ${c.text}`),
   '',
   '## Testimonials (`src/data/testimonials.json`)',
-  `- [ ] ${testimonials.confirm}`,
+  ...(testimonials.confirmed ? [] : [`- [ ] ${testimonials.confirm}`]),
   '',
   '## Units (`src/data/inventory.json`)',
 ];
@@ -57,7 +57,7 @@ lines.push('## Flags in page copy', '');
 for (const [note, files] of [...notes].sort()) lines.push(`- [ ] ${note} (${[...files].join(', ')})`);
 lines.push('');
 
-const total = dealership.confirm.length + fees.confirm.length + claims.items.filter((c) => !c.confirmed).length + 1 + unitItems + notes.size;
+const total = dealership.confirm.length + fees.confirm.length + claims.items.filter((c) => !c.confirmed).length + (testimonials.confirmed ? 0 : 1) + unitItems + notes.size;
 writeFileSync('docs/confirm-report.md', lines.join('\n'));
 console.log(`docs/confirm-report.md: ${total} open item(s)`);
 if (process.argv.includes('--strict') && total > 0) process.exit(1);

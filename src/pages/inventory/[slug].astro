@@ -54,7 +54,9 @@ const crumbs = [
   { name: title, path: unitPath(unit) },
 ];
 const firstPhotoUrl = photos[0]?.src;
-const description = `${title} for sale at RV Farm in Concord, ON${price ? `: ${new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(price)} + HST, PDI package and admin fee included` : ''}. ${specLine(unit)}`.trim();
+const description = unit.status === 'sold'
+  ? `${title}: sold. See similar used units at RV Farm in Concord, ON.`
+  : `${title} for sale at RV Farm in Concord, ON${price ? `: ${new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(price)} + HST, PDI package and admin fee included` : ''}. ${specLine(unit)}`.trim();
 const formKey = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
 const site = Astro.site!;
 ---
@@ -170,7 +172,7 @@ const site = Astro.site!;
       </div>
       <div class="lg:col-span-8">
         <LeadForm client:visible accessKey={formKey} subject={`Website: ${title} (${unit.stockNumber})`}
-          redirectUrl={new URL('/thanks', site).href} stockNumber={unit.stockNumber} unitTitle={title}
+          redirectUrl={new URL('/thanks', import.meta.env.PUBLIC_SITE_ORIGIN || site).href} stockNumber={unit.stockNumber} unitTitle={title}
           topics={['A question', 'Book a viewing', 'Value my trade-in', 'Financing']} phoneDisplay={dealership.phones.main}
           messagePlaceholder="e.g. Can I see it Saturday morning?" privacyHref={routeExists('/privacy') ? '/privacy' : undefined} />
       </div>
@@ -183,7 +185,7 @@ const site = Astro.site!;
         <ul class="m-0 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
           {similar.map((c) => <li class="flex"><UnitCard unit={c} review={REVIEW} /></li>)}
         </ul>
-        <p class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and licensing extra. * {ESTIMATE_FOOTNOTE()}</p>
+        <p class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and the government plate fee extra. * {ESTIMATE_FOOTNOTE()}</p>
         <p class="mt-2"><a href="/inventory" class="tap font-semibold">See all units</a></p>
       </section>
     )}

@@ -50,7 +50,7 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'How our prices work', path
             ))}
             <tr class="border-b-2 border-ink"><th scope="row" class="px-3 py-2 text-left font-semibold">Advertised price</th><td class="px-3 py-2 text-right font-bold text-red">{formatCad(ad)}</td></tr>
             <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">HST (13%)</th><td class="px-3 py-2 text-right">{formatCadCents(hstOn(ad))}</td></tr>
-            <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">Plates and permit (government fee)</th><td class="px-3 py-2 text-right">{formatCad(fees.plates.plateAndPermitCad)}</td></tr>
+            <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">Plates and permit (government fee)<Confirm note="Are plates separate, or already in admin & licensing?" /></th><td class="px-3 py-2 text-right">{formatCad(fees.plates.plateAndPermitCad)}</td></tr>
             <tr><th scope="row" class="px-3 py-2 text-left font-semibold">Total if you take nothing optional</th><td class="px-3 py-2 text-right font-semibold">{formatCadCents(ad + hstOn(ad) + fees.plates.plateAndPermitCad)}</td></tr>
           </tbody>
         </table>

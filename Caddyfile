@@ -10,6 +10,7 @@
 
 	header {
 		X-Content-Type-Options nosniff
+		Strict-Transport-Security "max-age=31536000"
 		Referrer-Policy strict-origin-when-cross-origin
 		X-Frame-Options DENY
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
@@ -22,9 +23,14 @@
 	@html not path /_astro/*
 	header @html Cache-Control "public, max-age=300, must-revalidate"
 
-	# /inventory → /inventory.html (Astro build.format = "file"); old trailing slashes redirect.
+	# /inventory → /inventory.html (Astro build.format = "file"). Trailing slashes and explicit .html
+	# redirect to the clean URL (the canonical), keeping any query string.
 	@trailing path_regexp trailing ^(.+)/$
-	redir @trailing {re.trailing.1} 301
+	redir @trailing {re.trailing.1}{?query} 301
+	@index path /index.html
+	redir @index /{?query} 301
+	@html path_regexp html ^(/.+)\.html$
+	redir @html {re.html.1}{?query} 301
 
 	try_files {path} {path}.html
 	file_server

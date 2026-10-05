@@ -1,4 +1,4 @@
-# Handoff — RV Farm website (Oct 2, 2026)
+# Handoff — RV Farm website (updated Oct 5, 2026)
 
 For the next session (Claude or a person). Read this, then `tasks/status.md` and `tasks/todo.md`. The approved plan is `docs/plan.md`; the client vault is `../Buro Enterprise`.
 
@@ -20,13 +20,9 @@ For the next session (Claude or a person). Read this, then `tasks/status.md` and
   - Lighthouse against a Railway URL.
 
 ## Do next, in order
-1. **Fix the 16 code-review findings** listed in `tasks/status.md` (file, problem, fix for each). Start with the two highs:
-   - **Canonical URLs end in `.html`** (`Base.astro`): strip `.html` and `/index`.
-   - **Dockerfile:** add `ARG`/`ENV` for `PUBLIC_WEB3FORMS_KEY`, `PUBLIC_ALLOW_INDEX`, `PUBLIC_REVIEW` (plus a site-origin variable) before `npm run build`. Without them, Railway variables never reach the build, so the forms can't send and indexing can never be turned on.
-   - Then medium 3–8: plates shown as an optional extra and the "licensing" wording; lead-form a11y and the missing-key/no-JS path; gating the testimonials; a `confirm-report --strict` launch gate.
-2. Run `npm run verify`, `npx lhci autorun`, `npx playwright test screenshots`, then look at the screenshots and commit.
-3. **Railway:** point a service at `interim` first. Watch the first build. Measure Lighthouse on the Railway URL.
-4. **James merges to `main`.** Keep Railway production on `interim` until the full site is approved.
+1. ~~Fix the 16 code-review findings~~ **Done Oct 5** (see `tasks/status.md`), with 6 regression tests.
+2. **Railway** (variables: `PUBLIC_WEB3FORMS_KEY`; `PUBLIC_SITE_ORIGIN` = the Railway URL until the domain is live; `PUBLIC_REVIEW=1` for a client-review deploy of `dev`; `PUBLIC_ALLOW_INDEX=1` only at launch, and that build fails while any `[confirm]` item is open): point a service at `interim` first. Watch the first build. Measure Lighthouse on the Railway URL.
+3. **James merges to `main`.** Keep Railway production on `interim` until the full site is approved.
 
 ## Waiting on James / Rae
 - **A Web3Forms access key**, set as `PUBLIC_WEB3FORMS_KEY` locally and on Railway.

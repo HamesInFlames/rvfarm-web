@@ -11,12 +11,14 @@ export default function Lightbox({ group }: { group: string }) {
 
   useEffect(() => {
     const links = [...document.querySelectorAll<HTMLAnchorElement>(`a[data-lightbox="${group}"]`)];
-    setPhotos(links.map((a) => ({ href: a.href, alt: a.dataset.alt ?? '' })));
+    // The big photo and its thumbnail link to the same file: count each photo once.
+    const unique = links.filter((a, i) => links.findIndex((b) => b.href === a.href) === i);
+    setPhotos(unique.map((a) => ({ href: a.href, alt: a.dataset.alt ?? '' })));
     const open = (e: MouseEvent) => {
       const a = (e.target as HTMLElement).closest<HTMLAnchorElement>(`a[data-lightbox="${group}"]`);
       if (!a || e.ctrlKey || e.metaKey || e.shiftKey) return;
       e.preventDefault();
-      setIndex(links.indexOf(a));
+      setIndex(Math.max(0, unique.findIndex((u) => u.href === a.href)));
       dialog.current?.showModal();
     };
     document.addEventListener('click', open);

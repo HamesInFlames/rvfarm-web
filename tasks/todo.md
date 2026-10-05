@@ -3,8 +3,7 @@
 Plan: `docs/plan.md` (§3g phases). Approved Oct 2, 2026.
 
 ## In progress
-- [ ] Phase 3 — `/inventory` LCP is 2.84 s (median of 3) vs the 2.5 s assertion; performance score 95 passes the ≥90 gate. Ideas: fewer cards competing on first load on phones, smaller first card, measure on Railway too
-- [ ] Phase 3 — Lighthouse on every page type, real mid-range Android, print stylesheet, repo size, `/code-review high`
+- [ ] Phase 3 (James) — real mid-range Android check; Lighthouse on the Railway URL
 - [ ] Phase 4 — walkthrough with Paul and Rae (James)
 
 ## Blocked / waiting on James
@@ -17,6 +16,7 @@ Plan: `docs/plan.md` (§3g phases). Approved Oct 2, 2026.
 - [ ] Rae's `[confirm]` list (plan §5); hours on the interim page are one of four conflicting versions
 
 ## Completed
+- [x] Phase 3 — React-free inventory filter (LCP 2.84 → 1.90 s), print spec sheet, filter tests, code review with all 16 findings fixed + 6 regression tests (Oct 2–5)
 - [x] Phase 2 — home, sell-or-consign, financing, delivery, pricing, about, reviews, FAQ, contact, privacy/terms/accessibility drafts, HTML sitemap, 404, robots.txt (noindex until `PUBLIC_ALLOW_INDEX=1`), `docs/confirm-report.md` (120 open items) (Oct 2)
 - [ ] Launch checklist: `npm run confirm-report -- --strict` passes, `PUBLIC_ALLOW_INDEX=1` on the production build, lawyer reads the legal drafts and deposit copy
 - [x] Phase 1 — 19 used units in `inventory.json` (cleanup notes in `docs/inventory-cleanup.md`), 305 photos watermarked (55 MB), price lib + tests, card, filter, type pages, detail page, gallery + lightbox, estimator, lead form, `/thanks`, Product/Offer + Breadcrumb JSON-LD (Oct 2)

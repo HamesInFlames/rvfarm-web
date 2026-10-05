@@ -115,9 +115,12 @@ const k = (n: number) => `$${n / 1000}k`;
 
     const num = (v: string | null) => (v && !Number.isNaN(Number(v)) ? Number(v) : null);
     const p = new URLSearchParams(location.search);
+    // An off-step ?max= (e.g. from an old link) snaps up to the nearest price step so a radio is always checked.
+    const steps = [...form.querySelectorAll<HTMLInputElement>('input[name=max]')].map((r) => num(r.value)).filter((n): n is number => n !== null);
+    const snapMax = (v: number | null) => (v === null || steps.includes(v) ? v : steps.find((n) => n >= v) ?? null);
     let s: State = {
       q: p.get('q') ?? '',
-      max: num(p.get('max')),
+      max: snapMax(num(p.get('max'))),
       sleeps: num(p.get('sleeps')),
       make: p.get('make') ?? '',
       sort: SORTS.includes(p.get('sort') ?? '') ? p.get('sort')! : 'newest',
@@ -175,13 +178,15 @@ const k = (n: number) => `$${n / 1000}k`;
       );
       root.querySelector('[data-toggle-count]')!.textContent = chips.length ? `(${chips.length})` : '';
 
-      const q = new URLSearchParams();
-      if (s.q) q.set('q', s.q);
-      if (s.max) q.set('max', String(s.max));
-      if (s.sleeps) q.set('sleeps', String(s.sleeps));
-      if (s.make) q.set('make', s.make);
-      if (s.sort !== 'newest') q.set('sort', s.sort);
-      history.replaceState(null, '', q.toString() ? `?${q}` : location.pathname);
+      // Rewrite only our own keys; keep anything else in the URL (utm/gclid) and the #hash.
+      const q = new URLSearchParams(location.search);
+      const setOrDelete = (key: string, value: string) => (value ? q.set(key, value) : q.delete(key));
+      setOrDelete('q', s.q);
+      setOrDelete('max', s.max ? String(s.max) : '');
+      setOrDelete('sleeps', s.sleeps ? String(s.sleeps) : '');
+      setOrDelete('make', s.make);
+      setOrDelete('sort', s.sort !== 'newest' ? s.sort : '');
+      history.replaceState(null, '', `${location.pathname}${q.toString() ? `?${q}` : ''}${location.hash}`);
     }
 
     function update(patch: Partial<State>) {

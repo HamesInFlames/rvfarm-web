@@ -8,17 +8,22 @@ import dealership from '../data/dealership.json';
 import testimonials from '../data/testimonials.json';
 import { telHref } from '../lib/format';
 import { breadcrumbJsonLd } from '../lib/seo';
+import { REVIEW } from '../lib/site';
 
 const d = dealership;
 const googleReview = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`RV Farm ${d.address.street} ${d.address.city}`)}`;
 const crumbs = [{ name: 'Home', path: '/' }, { name: 'About us', path: '/about' }, { name: 'Reviews', path: '/reviews' }];
+// Quotes appear in production only once reuse permission is confirmed (testimonials.json).
+const showQuotes = testimonials.confirmed || REVIEW;
 ---
 <Base title="Reviews" current="/about" jsonLd={[breadcrumbJsonLd(crumbs)]}
   description="What RV Farm customers have said, and how to reach us if something went wrong.">
-  <PageIntro crumbs={crumbs} title="What customers said"
-    lead={`These are Google reviews customers left between ${testimonials.period}, quoted word for word.`} />
+  <PageIntro crumbs={crumbs} title={showQuotes ? 'What customers said' : 'Reviews'}
+    lead={showQuotes
+      ? `These are Google reviews customers left between ${testimonials.period}, quoted word for word.`
+      : 'Read what customers say about us on Google, and tell other buyers how it went.'} />
 
-  <section aria-label="Reviews" class="wrap py-10">
+  {showQuotes && <section aria-label="Reviews" class="wrap py-10">
     <ul class="m-0 grid list-none gap-6 p-0 md:grid-cols-2">
       {testimonials.items.map((t) => (
         <li class="rounded border border-rule bg-paper p-6">
@@ -28,8 +33,8 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'About us', path: '/about' 
         </li>
       ))}
     </ul>
-    <Confirm note={testimonials.confirm} />
-  </section>
+    {!testimonials.confirmed && <Confirm note={testimonials.confirm} />}
+  </section>}
 
   <section aria-label="Leave a review or tell us about a problem" class="border-t border-rule bg-white">
     <div class="wrap grid gap-6 py-12 md:grid-cols-2">

@@ -17,5 +17,5 @@ const p = Astro.props;
 const accessKey = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
 ---
 <LeadForm client:visible {...p} accessKey={accessKey} subject={`Website: ${p.subject}`}
-  redirectUrl={new URL('/thanks', Astro.site).href} phoneDisplay={dealership.phones.main}
+  redirectUrl={new URL('/thanks', import.meta.env.PUBLIC_SITE_ORIGIN || Astro.site).href} phoneDisplay={dealership.phones.main}
   privacyHref={routeExists('/privacy') ? '/privacy' : undefined} />

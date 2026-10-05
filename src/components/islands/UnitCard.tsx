@@ -3,6 +3,7 @@
 import type { CardData } from '../../lib/inventory';
 
 const cad = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+const cad2 = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2 });
 
 const STATUS: Record<CardData['status'], { label: string; cls: string } | null> = {
   'in-stock': { label: 'On the lot', cls: 'bg-ok text-white' },
@@ -50,7 +51,7 @@ export default function UnitCard({ unit, review = false, headingLevel = 3, prior
               </p>
               <p className="m-0 mt-1 text-[0.9375rem] text-bark-60">Includes PDI package and admin fee</p>
               {unit.payment ? (
-                <p className="m-0 mt-1 text-[0.9375rem]">Est. <strong className="tabular">{cad.format(unit.payment)}</strong> bi-weekly*</p>
+                <p className="m-0 mt-1 text-[0.9375rem]">Est. <strong className="tabular">{cad2.format(unit.payment)}</strong> {unit.paymentFrequency ?? 'bi-weekly'}*</p>
               ) : null}
             </>
           ) : sold ? (
