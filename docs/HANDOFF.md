@@ -4,7 +4,7 @@ For the next session (Claude or a person). Read this, then `tasks/status.md` and
 
 ## Where things stand
 - **Branches on GitHub (`HamesInFlames/rvfarm-web`):**
-  - `interim` (eb0f3d6) is the one-page interim site meant to replace Turnkey.
+  - `interim` (a29122a, Oct 5: clean canonical + updated Caddyfile) is the one-page interim site meant to replace Turnkey.
   - `dev` holds the full site (Phases 0–2 and part of Phase 3).
   - **There is no `main` yet.** Claude was blocked from creating or merging it; James does that.
 - **Built:** 40 static pages.
