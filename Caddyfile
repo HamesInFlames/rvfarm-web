@@ -29,8 +29,8 @@
 	redir @trailing {re.trailing.1}{?query} 301
 	@index path /index.html
 	redir @index /{?query} 301
-	@html path_regexp html ^(/.+)\.html$
-	redir @html {re.html.1}{?query} 301
+	@dothtml path_regexp dothtml ^(/.+)\.html$
+	redir @dothtml {re.dothtml.1}{?query} 301
 
 	try_files {path} {path}.html
 	file_server
