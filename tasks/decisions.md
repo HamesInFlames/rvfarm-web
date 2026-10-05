@@ -32,3 +32,17 @@ Not installed: gsap (deferred; only the optional set-piece needed it), wrangler 
 - **Context:** Lighthouse mobile on `/inventory`: LCP 2.84 s with the filter as a React island hydrating the card grid. The same page with the filter rendered statically: LCP 1.74 s.
 - **Decision:** cards are static HTML (UnitCard still renders through React at build time, zero client JS); the filter is server-rendered controls plus a ~3 KB script (`src/components/astro/InventoryFilter.astro`) that hides and re-orders the cards. Result: LCP 1.90 s, performance 99, CLS 0, 3 KB JS on listing pages. Behaviour covered by `tests/e2e/filter.spec.ts` (6 tests incl. no-JS).
 - **React stays** for the estimator, lead form and lightbox (below the fold, `client:visible`/`client:idle`).
+
+### 2026-10-05 — Railway CLI (global, not a project dependency)
+- **Why:** James chose the CLI to set up the Railway service for `interim` instead of the dashboard or driving Chrome.
+- **What:** `npm i -g @railway/cli`, installed globally on the MSI laptop. It isn't in `package.json`, and the build doesn't need it (Railway builds the Dockerfile from GitHub).
+- **Guardrail:** `.claude/settings.json` already has `Bash(railway *)` / `PowerShell(railway *)` as ask rules, so every Railway command still asks James.
+
+### 2026-10-05 — Railway: two services in project "empowering-wholeness"
+- **Found:** James had already created the project (Oct 2). Service `rvfarm-web` deploys from `dev` at `rvfarm-web-production.up.railway.app` (Dockerfile, US East / us-east4).
+- **Decision (James):** keep both.
+  - `rvfarm-web` (`dev`): the review site for the Phase 4 walkthrough. `PUBLIC_REVIEW=1` shows the yellow [confirm] chips. `PUBLIC_SITE_ORIGIN` is the Railway URL.
+  - `rvfarm-interim` (`interim`): the one-page site that replaces Turnkey once Paul controls the domain. It has no variables.
+- **Gotcha:** `railway add --repo … --branch interim` built the repo's default branch (`dev`) first. Fixed by deploying the `interim` commit with `serviceInstanceDeployV2(commitSha)`. After that, pushes to `interim` deploy on their own.
+- No custom domains. `robots.txt` on `dev` blocks indexing until `PUBLIC_ALLOW_INDEX=1` at launch.
+- The empty project "tranquil-unity" (Oct 3) isn't used by this site.

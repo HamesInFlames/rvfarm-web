@@ -41,5 +41,11 @@
   - Lighthouse (mobile, Moto G Power emulation) ran against the Caddy containers. Reports are in the session scratchpad; the summary wasn't read (permission denial).
   - `docs/confirm-answers.md`: a fill-in sheet for Rae's answers (the 123 items deduped; price-changing questions first; unit table).
 - **`main`:** James created it from `dev`. Checked: `origin/main` = `origin/dev` = ed56551, identical trees.
-- **Still open:** Lighthouse on the Railway URL; a real Android phone check; `.dockerignore` doesn't exclude `.env` (a local `docker build` would bake local `PUBLIC_*` values in; Railway builds from git, so it's unaffected); `interim` has no `robots.txt`, so the Railway preview URL can be indexed.
+- **Railway (Oct 5, James's go-ahead; details in `decisions.md`):** project "empowering-wholeness", US East.
+  - `rvfarm-web` ← `dev`: https://rvfarm-web-production.up.railway.app. Review build (`PUBLIC_REVIEW=1`, chips visible: 11 on `/`, 19 on a unit page).
+  - `rvfarm-interim` ← `interim`: https://rvfarm-interim-production.up.railway.app. Its first build was wrongly from `dev`; redeployed `interim` d263759.
+  - Both deploys SUCCESS. Live checks: `/` 200; `/index.html` and trailing-slash 301s keep the query string; 404 page; HSTS and X-Frame-Options; `robots.txt` on `dev` blocks indexing; ~0.1–0.17 s response from Toronto.
+- **`interim` robots.txt (ffb90a8, pushed, deployed):** `dev`'s route copied over (Disallow all unless `PUBLIC_ALLOW_INDEX=1`), plus that ARG in `interim`'s Dockerfile. Interim verify green (check 0 errors, e2e 7/7). Docker image serves it. Live: `/robots.txt` 200 `Disallow: /`.
+- **Lighthouse on the live Railway URLs (mobile, Moto G Power emulation, median of 3, 17 pages):** performance 99–100 on every page; accessibility and best practices 100; CLS 0; LCP 1.08–1.68 s (unit page 1.68 s, 481 KB). SEO 69 on `dev` is only `robots.txt` blocking indexing. Interim scored SEO 100 before its `robots.txt` was added (it will now drop to 69 the same way).
+- **Still open:** a real Android phone check; `.dockerignore` doesn't exclude `.env` (a local `docker build` would bake local `PUBLIC_*` values in; Railway builds from git, so it's unaffected); `interim` has no `robots.txt`, so the Railway preview URL can be indexed.
 - **Findings for James:** `kimconsultant.net` (apex) doesn't resolve in DNS; only `www.kimconsultant.net` does. The footer links to `www`.

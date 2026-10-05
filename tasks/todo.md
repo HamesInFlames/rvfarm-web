@@ -3,13 +3,13 @@
 Plan: `docs/plan.md` (§3g phases). Approved Oct 2, 2026.
 
 ## In progress
-- [ ] Phase 3 (James) — real mid-range Android check; Lighthouse on the Railway URL
+- [ ] Phase 3 (James) — real mid-range Android check (Lighthouse on the Railway URLs done Oct 5: perf 99–100, LCP ≤ 1.68 s)
 - [ ] Phase 4 — walkthrough with Paul and Rae (James)
 
 ## Blocked / waiting on James
 - [x] `main` created from `dev` at ed56551 (James, Oct 5)
 - [ ] Rae's answers go in `docs/confirm-answers.md`; then Claude applies them to the data files
-- [ ] Railway project: point a service at `interim` (Dockerfile build). Not deployed; domain stays untouched until Paul controls it (vault `92`)
+- [x] Railway (Oct 5): `rvfarm-web` ← `dev` (review build) and `rvfarm-interim` ← `interim`, both live on `*.up.railway.app`. Domain stays untouched until Paul controls it (vault `92`)
 - [x] Docker image built and run locally (Oct 5): fixed the Caddy `@html` startup crash on dev and interim
 - [ ] Web3Forms access key: set `PUBLIC_WEB3FORMS_KEY` in a local `.env` and on Railway. Until then the form says "call us" instead of sending; "a test form reaches James's inbox" (Phase 1 acceptance) is NOT verified
 - [ ] 2006 Maxlite 25RS: its old-site page returns 410 Gone (probably sold); still listed with a confirm flag
