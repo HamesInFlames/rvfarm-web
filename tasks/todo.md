@@ -7,9 +7,10 @@ Plan: `docs/plan.md` (§3g phases). Approved Oct 2, 2026.
 - [ ] Phase 4 — walkthrough with Paul and Rae (James)
 
 ## Blocked / waiting on James
-- [ ] Push Phase 2 on `dev` (Phase 0–1 pushed Oct 2 with James's OK); create `main` and merge (James; hook blocks pushes to main)
+- [x] `main` created from `dev` at ed56551 (James, Oct 5)
+- [ ] Rae's answers go in `docs/confirm-answers.md`; then Claude applies them to the data files
 - [ ] Railway project: point a service at `interim` (Dockerfile build). Not deployed; domain stays untouched until Paul controls it (vault `92`)
-- [ ] Docker image build untested locally (Docker Desktop wasn't running) — first real test is Railway, or start Docker Desktop and run `docker build -t rvfarm-web .`
+- [x] Docker image built and run locally (Oct 5): fixed the Caddy `@html` startup crash on dev and interim
 - [ ] Web3Forms access key: set `PUBLIC_WEB3FORMS_KEY` in a local `.env` and on Railway. Until then the form says "call us" instead of sending; "a test form reaches James's inbox" (Phase 1 acceptance) is NOT verified
 - [ ] 2006 Maxlite 25RS: its old-site page returns 410 Gone (probably sold); still listed with a confirm flag
 - [ ] Prices: 5 units now use the live old-site price (it changed since the Sept 17 audit); Stone Ridge page says $18,000, the old list says $22,900

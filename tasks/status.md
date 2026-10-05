@@ -34,4 +34,12 @@
 - **Still not verified:** Docker image build, Railway URL Lighthouse, real Android phone, real form delivery (needs James's Web3Forms key).
 - **Pushed:** `dev` (James: "commit and push everything"). No `main`: Claude was blocked from creating or merging it; James does it.
 - **What's next:** James: Railway service on `interim` (watch the first Docker build), Web3Forms key, create `main` and merge, send Rae `docs/confirm-report.md`. Then Phase 4 walkthrough with Paul and Rae.
+- **Oct 5 (afternoon):**
+  - `npm run verify` green on `dev` (Playwright 133/133, check 0 errors, 123 open confirm items).
+  - First local Docker build. The image built, but **Caddy refused to start: `matcher is defined more than once: @html`**. The Railway deploy would have crashed. Renamed the redirect matcher to `@dothtml` (dev ed56551, interim d263759; both pushed).
+  - Fixed images checked under Caddy with `PORT` set: all 38 sitemap pages 200; 66/66 unit-page images; `.html`, `/index.html` and trailing-slash 301s keep the query string; 404 page; security headers and HSTS; immutable `/_astro/*`; gzip. Interim: `/` 200, `/index.html` 301.
+  - Lighthouse (mobile, Moto G Power emulation) ran against the Caddy containers. Reports are in the session scratchpad; the summary wasn't read (permission denial).
+  - `docs/confirm-answers.md`: a fill-in sheet for Rae's answers (the 123 items deduped; price-changing questions first; unit table).
+- **`main`:** James created it from `dev`. Checked: `origin/main` = `origin/dev` = ed56551, identical trees.
+- **Still open:** Lighthouse on the Railway URL; a real Android phone check; `.dockerignore` doesn't exclude `.env` (a local `docker build` would bake local `PUBLIC_*` values in; Railway builds from git, so it's unaffected); `interim` has no `robots.txt`, so the Railway preview URL can be indexed.
 - **Findings for James:** `kimconsultant.net` (apex) doesn't resolve in DNS; only `www.kimconsultant.net` does. The footer links to `www`.
