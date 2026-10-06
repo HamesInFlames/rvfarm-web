@@ -52,5 +52,12 @@
   - Menu opens. Filter: "Under $15k" → 8 of 19, `?max=15000`, and the chip clears it. Photo viewer: 24 photos, Next/Previous wrap, Close. Estimator: down payment and frequency update the payment, numeric keypad. Form shows the call block (no key).
   - No JS errors. Home LCP 1.35 s cold cache (4.2 s on the session's very first request, which includes connection setup).
   - Viewer photos take about 0.8–1.1 s to appear on slow 4G, with no loading indicator, no swipe and no preload of the next photo. The dialog background is 95% opaque, so the page title shows faintly behind it. These are suggestions, not changed.
-- **Still open:** a real Android phone check (the emulation doesn't cover the real dialer, Samsung Internet or real touch feel); `.dockerignore` doesn't exclude `.env` (a local `docker build` would bake local `PUBLIC_*` values in; Railway builds from git, so it's unaffected); `interim` has no `robots.txt`, so the Railway preview URL can be indexed.
+- **Still open:** a real Android phone check (the emulation doesn't cover the real dialer, Samsung Internet or real touch feel); `.dockerignore` doesn't exclude `.env` (a local `docker build` would bake local `PUBLIC_*` values in; Railway builds from git, so it's unaffected). (`interim`'s `robots.txt` was added in ffb90a8 and is live.)
 - **Findings for James:** `kimconsultant.net` (apex) doesn't resolve in DNS; only `www.kimconsultant.net` does. The footer links to `www`.
+- **Oct 5 (late afternoon):**
+  - `main` fast-forwarded to `dev` at `8a90ab7` (James: "push everything to main"; status commits only).
+  - `docs/walkthrough-paul-rae.md` (not committed): one sheet for the Phase 4 meeting. Site tour (review link, what the yellow tags mean, 12 pages, phone checks), all Rae questions in plain words with answer lines, the unit table, the lawyer's list, domains and email with the safe order of steps, and Part 5: 19 questions for the VOW site. It supersedes `confirm-answers.md` as the sheet to bring; answers written on it get applied the same way.
+  - Possible answer for Rae's warranty question: VOW's current site sells **Global Warranty** extended plans (`../buro-vow-web/docs/site-capture/`). Ask whether RV Farm uses the same provider.
+  - The VOW site capture tripped Turnkey's firewall: this IP is temporarily blocked on vacationsonwheels.ca **and** thervfarm.ca. The RV Farm link crawl (it checks vacationsonwheels.ca) will fail with 403 until the block lifts; that's the block, not a broken link.
+  - VOW work moved to `../buro-vow-web` (plan approved, Phase 0 committed locally).
+- **What's next (RV Farm):** unchanged: Web3Forms key, real Android phone, Rae's answers (walkthrough sheet), Phase 4 walkthrough, lawyer review, domain.

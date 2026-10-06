@@ -1,9 +1,11 @@
 # .claude/hooks/guard.ps1  -- PreToolUse guard (matcher "Bash|PowerShell|Edit|Write"). Exit 2 = block.
+# Pushes to main/master ask James for approval instead of being blocked (changed by James, Oct 5 2026).
 $ProgressPreference = 'SilentlyContinue'
 $raw = [Console]::In.ReadToEnd()
 try { $in = $raw | ConvertFrom-Json } catch { exit 0 }
 $tool = [string]$in.tool_name
 $block = $null
+$ask = $null
 
 if ($tool -eq 'Bash' -or $tool -eq 'PowerShell') {
   $cmd = [string]$in.tool_input.command
@@ -12,8 +14,8 @@ if ($tool -eq 'Bash' -or $tool -eq 'PowerShell') {
   if ($cmd -match '(?i)\bgit\b[^\r\n;|&]*\bpush\b') {
     if     ($cmd -match '(?i)(^|\s)(-f|--force\S*|--delete|-d|--mirror|--prune)(\s|=|$)') { $block = 'force or delete push' }
     elseif ($cmd -match '(?i)\s\+\S|\s:\S')                                               { $block = 'force or delete refspec' }
-    elseif ($cmd -match '(?i)(\s|:|\+|refs/heads/)(main|master)(\s|$)')                    { $block = 'push to main/master' }
-    elseif ($branch.Trim() -match '^(main|master)$')                                       { $block = 'push while checked out on main/master' }
+    elseif ($cmd -match '(?i)(\s|:|\+|refs/heads/)(main|master)(\s|$)')                    { $ask = 'push to main/master' }
+    elseif ($branch.Trim() -match '^(main|master)$')                                       { $ask = 'push while checked out on main/master' }
   }
   if (-not $block -and $cmd -match '(?i)\brm\s+(-[a-z]*r[a-z]*f|-[a-z]*f[a-z]*r|--recursive)|Remove-Item\b.*-Recurse|\b(rmdir|rd)\s+/s|\bdel\s+/s') { $block = 'recursive delete' }
   if (-not $block -and $cmd -match '(?i)\bgit\s+(reset\s+--hard|clean\s+-[a-z]*f|branch\s+-D)|\bgh\s+repo\s+delete') { $block = 'destructive git/gh command' }
@@ -29,5 +31,9 @@ elseif ($tool -eq 'Edit' -or $tool -eq 'Write') {
 if ($block) {
   [Console]::Error.WriteLine("Blocked by project guard hook: $block. Use a pull request / ask the developer.")
   exit 2
+}
+if ($ask) {
+  @{ hookSpecificOutput = @{ hookEventName = 'PreToolUse'; permissionDecision = 'ask'; permissionDecisionReason = "Guard: $ask. Approve only if you meant to update main." } } | ConvertTo-Json -Compress
+  exit 0
 }
 exit 0
