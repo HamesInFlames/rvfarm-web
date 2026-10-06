@@ -48,9 +48,9 @@ Open the review link on a phone first; most customers will see the site that way
 1. Are the prices on the old site **unit prices**, with the PDI package and admin fee added on top?
    - Answer:
 2. Admin fee: **$599** (Paul) or **$499** (Rae)?
-   - Answer:
+   - Answer: $599 (Paul's Oct 5 fee list; final per vault `20-decisions.md` 2026-10-06). Already on the site.
 3. PDI package: the exact amount ($2,995 on the bill of sale; Paul said about $3,000), the name customers see ("PDI package" or "road-ready package"), and exactly what's in it.
-   - Answer:
+   - Answer: $1,995 (Paul's Oct 5 fee list; final per vault `20-decisions.md` 2026-10-06). Already on the site. Still open: does it still include the starter kit and demo, the name customers see, and what's in it.
 4. Plates: does "admin & licensing" already include the plates ($72 / $32)? If yes, the separate plates line comes off so customers aren't charged twice.
    - Answer:
 5. Is an "as-is" price offered (no PDI package)?
