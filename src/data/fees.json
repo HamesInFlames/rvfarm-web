@@ -1,7 +1,7 @@
 {
   "pdiPackage": {
     "label": "PDI, demo and starter kit",
-    "amountCad": 2995,
+    "amountCad": 1995,
     "includedInAdvertisedPrice": true
   },
   "admin": {
@@ -33,8 +33,7 @@
     "frequency": "biweekly"
   },
   "confirm": [
-    "admin.amountCad: $599 (Paul) vs $499 (Rae); one value here re-prices the whole site",
-    "pdiPackage.amountCad: $2,995 on the bill of sale; Paul said about $3,000",
+    "pdiPackage: does the $1,995 PDI still include the starter kit and demo?",
     "pdiPackage.label: customer-facing name (\"PDI package\" vs \"road-ready package\") and exactly what's in it",
     "optional.warranty: provider, coverage and age limits",
     "optional.delivery: is $6.50/km the published rate?",

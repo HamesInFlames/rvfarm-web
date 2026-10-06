@@ -12,7 +12,7 @@ import { breadcrumbJsonLd } from '../lib/seo';
 const d = dealership;
 const extra = advertisedPrice(0);
 const faqs: { q: string; a: string; link?: { href: string; text: string }; confirm?: string }[] = [
-  { q: 'What’s included in the price I see?', a: `The unit plus our PDI, demo and starter kit package and the admin fee, ${formatCad(extra)} together. HST and the government plate fee are added at sale. Nothing else is required.`, link: { href: '/pricing', text: 'How our prices work' }, confirm: 'Admin fee $599 vs $499' },
+  { q: 'What’s included in the price I see?', a: `The unit plus our PDI, demo and starter kit package and the admin fee, ${formatCad(extra)} together. HST and the government plate fee are added at sale. Nothing else is required.`, link: { href: '/pricing', text: 'How our prices work' }, confirm: 'PDI package name and what’s in it' },
   { q: 'Can I hold a unit with a deposit?', a: 'Yes. Call us first. Our written deposit terms are being finalized, and we’ll go over them with you before you pay anything, including whether and when the deposit is refundable.', confirm: 'Paul’s deposit terms (lawyer reviewing)' },
   { q: 'How long does consignment take to pay out?', a: 'You’re paid after your unit sells, minus our commission and any agreed fees. It can take up to 90 days.', link: { href: '/sell-or-consign#consign', text: 'How consignment works' }, confirm: 'Payout timeline' },
   { q: 'Do you deliver?', a: `Yes, at ${formatCadCents(fees.optional.delivery.ratePerKmCad)} per km plus HST, or you can pick it up here at no charge. Park models and mobile homes move on a licensed hauler.`, link: { href: '/delivery', text: 'Delivery details' }, confirm: 'Delivery rate' },
