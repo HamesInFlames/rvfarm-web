@@ -1,5 +1,9 @@
 # Session Status — RV Farm website
 
+## Oct 8 (from the vault session; no code changed)
+- `interim` merged into `main` (`aabd43f`, James asked). `main` already had everything `interim` carried, so conflicts resolved to `main`'s files; the tree is identical to `main` before the merge. `interim`'s stray `dist-formtest/` build output (844 files) was left out. `interim` itself and its Railway service are unchanged. `main` now has this merge commit and `dev` doesn't, so `main` can't be fast-forwarded to `dev` any more; merge `dev` into `main` next time.
+- Domain: thervfarm.ca is in GoDaddy (the only domain in that account), registered in Paul's own name, auto-renew on, paid to May 2028 (vault `92`, Oct 8 update). Still to do: James as a delegate user.
+
 ## Last session
 - **Date:** 2026-10-02 (5:01 pm → Phase 0 done)
 - **Tool used:** Claude Code (Opus 5.5), started in this repo with the vault added
