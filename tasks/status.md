@@ -1,5 +1,14 @@
 # Session Status — RV Farm website
 
+## Oct 13 — exact Google listing, location and review links (subagent of the vault session, Claude Opus 5.5)
+- **Source:** Google Maps / Places API, read Oct 13: listing "The RV Farm", 1841 Hwy 7, Concord, ON L4K 1V4; place ID `ChIJ48H-hqQ7K4gR1KyH2e7C1oE`, CID 9355879607016336596; 43.8027482, -79.4857234; plus code RG37+3P Vaughan. Rating 2.9 from 155 reviews: recorded only as a data note (`dealership.json` → `google.note`), never shown.
+- **Data:** `address.mapsUrl` is now the directions URL (with `destination_place_id`); new `address.plusCode`, `geo` {lat, lng} and a `google` object (listingName, placeId, cid, listingUrl, reviewUrl, note).
+- **Links:** Get directions (home visit block, `/contact`, sticky bar) → directions URL. Footer address and "Find us on Google Maps" (home, `/contact`, with the plus code) → listing URL. No map iframe.
+- **Reviews:** `/reviews` keeps the four confirmed testimonials and now has "Bought from us? Leave us a Google review" with a "Write a Google review" button (write-review URL) and a "Read our reviews on Google" link (listing). Copy invites every customer; no incentive, no gating, no Google review text quoted. Footer "RV Farm" column gained "Review us on Google". No rating line or stars component existed.
+- **JSON-LD:** AutoDealer gained `geo` (GeoCoordinates) and `hasMap` (listing URL); `sameAs` unchanged; no `aggregateRating`/`review` anywhere (comment in `lib/seo.ts`).
+- **[confirm] chips:** none existed about the Maps/Google profile URL or review picks, so nothing to resolve; the picks rule ("James picks and pastes quotes himself with Rae's OK") is in `google.note` and the `/reviews` header comment.
+- **Verification (actual):** `npm run verify` green: contrast pass; unit 22/22; `astro check` 0 errors; build 28 pages; content grep 0 hits; confirm report 42 → 42 open items; Playwright **100/100** (new regression test: no rating markup in any page's JSON-LD and no rating text, `hasMap`/`geo` present, write-review and listing links on `/reviews`, directions link and no iframe on `/contact`). Port 4321 was free and the served pages were RV Farm's. Screenshots of `/reviews` and `/contact` at 1440 and 375 reviewed; the plus code wrapped on phones, now kept on one line.
+
 ## Oct 12 — Rae and Paul's Oct 8 answers applied (subagent of the vault session, Claude Opus 5.5)
 - **Source:** vault `96a-answers-2026-10-08.md` (Rae and Paul's answers in the Google Doc, Oct 8; Rae's unit sheet, Oct 10). Not pushed; the vault session reviews and pushes.
 - **Applied:**

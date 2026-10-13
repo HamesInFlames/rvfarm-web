@@ -1,6 +1,8 @@
 ---
-// Reviews (plan D10): the four real testimonials with their period, no rating badge, and a direct line
-// for anyone who had a problem.
+// Reviews (plan D10): the four real testimonials with their period, no rating badge, an invitation to
+// review us on Google, and a direct line for anyone who had a problem. Never show the Google rating or
+// count, never quote other Google reviews here (James picks and pastes quotes himself with Rae's OK),
+// never offer an incentive, and invite every customer, not only happy ones (Google bans review gating).
 import Base from '../layouts/Base.astro';
 import PageIntro from '../components/astro/PageIntro.astro';
 import Confirm from '../components/astro/Confirm.astro';
@@ -11,7 +13,6 @@ import { breadcrumbJsonLd } from '../lib/seo';
 import { REVIEW } from '../lib/site';
 
 const d = dealership;
-const googleReview = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`RV Farm ${d.address.street} ${d.address.city}`)}`;
 const crumbs = [{ name: 'Home', path: '/' }, { name: 'About us', path: '/about' }, { name: 'Reviews', path: '/reviews' }];
 // Quotes appear in production only once reuse permission is confirmed (testimonials.json).
 const showQuotes = testimonials.confirmed || REVIEW;
@@ -39,9 +40,12 @@ const showQuotes = testimonials.confirmed || REVIEW;
   <section aria-label="Leave a review or tell us about a problem" class="border-t border-rule bg-white">
     <div class="wrap grid gap-6 py-12 md:grid-cols-2">
       <div class="rounded border border-rule bg-paper p-6">
-        <h2 class="m-0 text-[1.75rem]">Bought from us?</h2>
-        <p class="mt-2">Tell other buyers how it went. Find us on Google Maps and choose “Write a review”.</p>
-        <a href={googleReview} target="_blank" rel="noopener" class="btn btn-secondary mt-3">Find us on Google Maps<span class="sr-only"> (opens in a new tab)</span></a>
+        <h2 class="m-0 text-[1.75rem]">Bought from us? Leave us a Google review</h2>
+        <p class="mt-2">Whether you bought, sold, consigned or just visited, tell other buyers how it went. Every review helps us do better.</p>
+        <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <a href={d.google.reviewUrl} target="_blank" rel="noopener" class="btn btn-primary">Write a Google review<span class="sr-only"> (opens in a new tab)</span></a>
+          <a href={d.google.listingUrl} target="_blank" rel="noopener" class="tap">Read our reviews on Google<span class="sr-only"> (opens in a new tab)</span></a>
+        </div>
       </div>
       <div class="rounded border-2 border-red bg-white p-6">
         <h2 class="m-0 text-[1.75rem]">Had a problem?</h2>

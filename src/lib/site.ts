@@ -65,6 +65,7 @@ export const footerNav: { heading: string; items: NavItem[] }[] = [
       { label: 'Reviews', href: '/reviews' },
       { label: 'Questions', href: '/faq' },
       { label: 'Contact', href: '/contact' },
+      { label: 'Review us on Google', href: dealership.google.reviewUrl, external: true },
       { label: `${dealership.sibling.name} (service)`, href: dealership.sibling.url, external: true },
     ],
   },
