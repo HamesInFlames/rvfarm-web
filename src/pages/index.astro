@@ -22,7 +22,7 @@ const onLot = units.filter((u) => u.status !== 'sold');
 const photoCount = onLot.reduce((n, u) => n + unitPhotos(u).length, 0);
 
 // Hero: a real, landscape exterior from the lot. Falls back to the first unit with a photo.
-const heroUnit = units.find((u) => u.slug === '2016-crossroads-32rl') ?? units.find((u) => unitPhotos(u).length > 0);
+const heroUnit = units.find((u) => u.slug === '2006-sunset-creek-298bh') ?? units.find((u) => unitPhotos(u).length > 0);
 const heroPhoto = heroUnit ? unitPhotos(heroUnit)[0] : undefined;
 
 const groups = await Promise.all(
@@ -141,7 +141,7 @@ const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
       <ul class="m-0 mt-6 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4" aria-describedby="home-estimate">
         {newest.map((c) => <li class="flex"><UnitCard unit={c} review={REVIEW} /></li>)}
       </ul>
-      <p id="home-estimate" class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and the government plate fee extra. * {ESTIMATE_FOOTNOTE()}</p>
+      <p id="home-estimate" class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and the admin and licensing fee; HST extra. * {ESTIMATE_FOOTNOTE()}</p>
     </div>
   </section>
 
@@ -152,7 +152,7 @@ const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
         <h2 id="price-h" class="m-0 text-[2rem] lg:text-[2.5rem]">The price you see is the price before tax</h2>
         <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
         <p class="m-0 max-w-[36rem]">
-          Every price on this site already includes our PDI, demo and starter kit package and the admin fee. The only things added at the desk are HST and the government plate fee. Warranty and delivery are your choice, and they’re listed separately with their prices.
+          Every price on this site already includes our PDI package (pre-delivery inspection, starter kit and demo) and the admin and licensing fee, which covers the MTO and ServiceOntario fees and plates. The only thing added at the desk is HST. Warranty and delivery are your choice, and they’re listed separately with their prices.
         </p>
         <p class="mt-4"><a href="/pricing" class="tap font-semibold">How our prices work</a></p>
       </div>
@@ -164,10 +164,10 @@ const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
               <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">{l.label}</th><td class="px-3 py-2 text-right">{formatCad(l.amountCad)}</td></tr>
             ))}
             <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-semibold">Advertised price</th><td class="px-3 py-2 text-right text-xl font-bold text-red">{formatCad(advertisedPrice(example.unitPriceCad!))}</td></tr>
-            <tr><th scope="row" class="px-3 py-2 text-left font-normal text-bark-60">Added at the desk</th><td class="px-3 py-2 text-right text-bark-60">HST 13% + plates {formatCad(fees.plates.plateAndPermitCad)}</td></tr>
+            <tr><th scope="row" class="px-3 py-2 text-left font-normal text-bark-60">Added at the desk</th><td class="px-3 py-2 text-right text-bark-60">HST 13%</td></tr>
           </tbody>
         </table>
-        <Confirm note="PDI package name and what's in it" />
+        <Confirm note="Admin fee: Rae $499 (Oct 8) vs Paul $599 (Oct 5); Paul to pick" />
       </div>
     </section>
   )}
@@ -202,8 +202,8 @@ const exampleLines = example ? priceBreakdown(example.unitPriceCad!) : [];
       <a href="/financing" class="btn mt-4 border-2 border-white bg-white text-red hover:bg-paper hover:text-red">Financing and calculator</a>
     </div>
     <div class="rounded border border-rule bg-paper p-6 lg:p-8">
-      <h2 class="m-0 text-[1.75rem]">Delivery and mobile-home moves</h2>
-      <p class="mt-3">Pick it up here, or we deliver at {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km<Confirm note="Delivery rate" />. We also move park models and mobile homes, including permits.</p>
+      <h2 class="m-0 text-[1.75rem]">Delivery</h2>
+      <p class="mt-3">Pick it up here, or we deliver at {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, one way, for units up to {fees.optional.delivery.maxWidthFt} ft wide and {fees.optional.delivery.maxLengthFt} ft long. Bigger units, including park models and mobile homes, we quote.</p>
       <a href="/delivery" class="btn btn-secondary mt-4">Delivery details</a>
     </div>
   </section>

@@ -10,20 +10,19 @@
     "includedInAdvertisedPrice": true
   },
   "hstRate": 0.13,
-  "plates": {
-    "plateAndPermitCad": 72,
-    "permitOnlyCad": 32,
-    "note": "Government plate and permit fees, paid at sale"
-  },
   "optional": {
     "warranty": {
       "label": "Extended warranty",
-      "amountCadPerYear": 1995,
-      "maxYears": 5
+      "amountCad": 1995,
+      "maxYears": 3,
+      "coverage": "Full coverage, including tires",
+      "deductibleCad": 300
     },
     "delivery": {
       "label": "Delivery",
-      "ratePerKmCad": 6.5
+      "ratePerKmCad": 6.5,
+      "maxWidthFt": 8,
+      "maxLengthFt": 42
     }
   },
   "estimator": {
@@ -33,11 +32,9 @@
     "frequency": "biweekly"
   },
   "confirm": [
-    "pdiPackage: does the $1,995 PDI still include the starter kit and demo?",
-    "pdiPackage.label: customer-facing name (\"PDI package\" vs \"road-ready package\") and exactly what's in it",
-    "optional.warranty: provider, coverage and age limits",
-    "optional.delivery: is $6.50/km the published rate?",
-    "estimator: lender and an example rate they'll stand behind (7.9% / 60 months / $500 down is the old site's calculator)",
-    "plates: the bill of sale says admin & licensing replaces admin + ownership + plate. If plates ($72/$32) are already in it, remove the separate plates line so it isn't counted twice"
+    "admin: Rae said $499 on Oct 8, Paul said $599 on Oct 5; Paul to pick. The site keeps $599 until he does",
+    "optional.warranty: provider not named yet ($1,995, up to 3 years, full coverage including tires, $300 deductible are confirmed)",
+    "estimator: 7.9% / 60 months / $500 down is an editable example, not an offer. Rae's lender range (7.9–29.9%, 4–15 years) stays off the site until the lawyer has checked the credit-advertising rules",
+    "as-is: lawyer to confirm how prices are shown when any unit can also be bought as-is without the PDI package (item 7.8)"
   ]
 }

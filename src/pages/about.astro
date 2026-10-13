@@ -23,8 +23,9 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'About us', path: '/about' 
       <p class="m-0">We’re at {d.address.street} in {d.address.city}. {d.sibling.name}, our sister business, does service, parts, warranty and insurance repairs at the same address, so the people who sell you a trailer are a short walk from the people who fix one.</p>
       <p class="m-0">Every unit we list shows a price that already includes the PDI package and admin fee. We think you should know what you’ll pay before you drive out.</p>
       <Claim id="family" />
-      <Claim id="experience" />
-      <Claim id="priority" />
+      {d.memberships.length > 0 && (
+        <p class="m-0">Members of the {d.memberships.slice(0, -1).join(', ')}{d.memberships.length > 1 ? ' and ' : ''}{d.memberships.at(-1)}.</p>
+      )}
       <div class="mt-2 flex flex-wrap gap-3">
         <a href="/inventory" class="btn btn-primary">See the units</a>
         <a href={telHref(d.phones.main)} class="btn btn-secondary tabular">Call {d.phones.main}</a>

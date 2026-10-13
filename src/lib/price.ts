@@ -63,6 +63,8 @@ export function examplePayment(unitPriceCad: number, f = fees) {
   }, f);
 }
 
+// Not an advertised rate: the example inputs are stated and the visitor can change every one of them.
 export const ESTIMATE_FOOTNOTE = (f = fees) =>
-  `Estimate only, not a credit offer: ${f.estimator.termMonths} months at an example ${f.estimator.exampleAprPct}% APR, ` +
-  `$${f.estimator.downCad} down, HST included. Your rate depends on the lender and your credit.`;
+  `Estimate only, not a credit offer or an advertised rate. It uses example figures you can change in the calculator: ` +
+  `${f.estimator.exampleAprPct}% APR over ${f.estimator.termMonths} months, $${f.estimator.downCad} down, HST included. ` +
+  `Your actual rate and term depend on the lender and your credit.`;

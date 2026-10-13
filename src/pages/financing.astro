@@ -26,7 +26,7 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'Financing', path: '/financ
       {[
         ['Pick a budget', 'Use the calculator below. Every unit page also shows an estimated payment.'],
         ['Tell us the basics', 'Name, phone and what you’re looking at. That’s all we need to start.'],
-        ['We call you', 'We go over your options and the lender’s application with you by phone or at the lot.'],
+        ['A finance manager calls you', 'We work with several lenders. Once your deal looks like it will go ahead, one of our three finance managers contacts you and goes through the lender’s application with you.'],
       ].map(([h, p], i) => (
         <li class="border-t-4 border-orange pt-4">
           <p class="m-0 font-[family-name:var(--font-display)] text-4xl font-bold text-red" aria-hidden="true">{i + 1}</p>
@@ -44,7 +44,7 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'Financing', path: '/financ
       <p class="mb-6 mt-2 max-w-[44rem]">Starts at {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(median)}, the middle price on our lot today. Type in any price.</p>
       <PaymentEstimator client:visible priceCad={median} aprPct={fees.estimator.exampleAprPct}
         termMonths={fees.estimator.termMonths} downCad={fees.estimator.downCad} frequency={fees.estimator.frequency as Frequency} />
-      <p class="mt-4 text-[0.9375rem] text-bark-60">{ESTIMATE_FOOTNOTE()}<Confirm note="Lender and an example rate they'll stand behind" /></p>
+      <p class="mt-4 text-[0.9375rem] text-bark-60">{ESTIMATE_FOOTNOTE()}<Confirm note="Example rate only. Lenders' real rates and terms stay off the site until the lawyer checks the credit-advertising rules" /></p>
     </div>
   </section>
 
@@ -52,7 +52,7 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'Financing', path: '/financ
     <div class="lg:col-span-4">
       <h2 id="apply-h" class="m-0 text-[2rem]">Ask about financing</h2>
       <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
-      <p class="m-0">This isn’t a credit application. It tells us how to reach you and what you’re after; the lender’s application happens with us, in person or by phone.</p>
+      <p class="m-0">This isn’t a credit application. It tells us how to reach you and what you’re after. It comes to RV Farm, and the lender’s application happens with one of our finance managers, in person or by phone.</p>
     </div>
     <div class="lg:col-span-8">
       <ContactForm subject="Financing" submitLabel="Ask us to call"

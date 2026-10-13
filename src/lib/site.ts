@@ -19,6 +19,16 @@ export function routeExists(path: string): boolean {
   return builtRoutes.has(clean);
 }
 
+/**
+ * Link to a Vacations on Wheels page (removal, consign). Review builds link to the new VOW review site's page;
+ * production links to vacationsonwheels.ca's home page until the new VOW site is live there (dealership.json confirm).
+ */
+export function siblingUrl(page?: keyof typeof dealership.sibling.pages): string {
+  const s = dealership.sibling;
+  if (!page) return s.url;
+  return REVIEW ? `${s.reviewUrl}${s.pages[page]}` : s.url;
+}
+
 export interface NavItem { label: string; href: string; external?: boolean; note?: string }
 
 export const primaryNav: NavItem[] = [

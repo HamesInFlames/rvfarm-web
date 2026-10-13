@@ -1,30 +1,31 @@
 ---
-// Delivery, pick-up and mobile-home moves. The per-km rate comes from fees.json and is flagged until confirmed.
+// Delivery and pick-up. The per-km rate and size limits come from fees.json (confirmed by Rae, Oct 8). Mobile-home removal is VOW's.
 import Base from '../layouts/Base.astro';
 import PageIntro from '../components/astro/PageIntro.astro';
 import ContactForm from '../components/astro/ContactForm.astro';
-import Confirm from '../components/astro/Confirm.astro';
 import HoursTable from '../components/astro/HoursTable.astro';
 import fees from '../data/fees.json';
 import dealership from '../data/dealership.json';
 import { formatCad, formatCadCents, telHref } from '../lib/format';
 import { withHst } from '../lib/price';
 import { breadcrumbJsonLd } from '../lib/seo';
+import { siblingUrl } from '../lib/site';
 
-const rate = fees.optional.delivery.ratePerKmCad;
+const { ratePerKmCad: rate, maxWidthFt, maxLengthFt } = fees.optional.delivery;
 const examples = [50, 100, 200, 300];
 const crumbs = [{ name: 'Home', path: '/' }, { name: 'Delivery', path: '/delivery' }];
 ---
 <Base title="Delivery and pick-up" current="/delivery" jsonLd={[breadcrumbJsonLd(crumbs)]}
   description={`RV Farm delivers trailers, park models and mobile homes at ${formatCadCents(rate)} per km, or pick yours up at 1841 Hwy 7, Concord.`}>
-  <PageIntro crumbs={crumbs} title="Delivery, pick-up and mobile-home moves"
+  <PageIntro crumbs={crumbs} title="Delivery and pick-up"
     lead="Pick your unit up here at no charge, or we bring it to you. Delivery is optional and never part of the advertised price." />
 
   <section aria-labelledby="rate-h" class="wrap grid gap-10 py-10 lg:grid-cols-12">
     <div class="lg:col-span-6">
-      <h2 id="rate-h" class="m-0 text-[2rem]">{formatCadCents(rate)} per kilometre<Confirm note="Delivery rate" /></h2>
+      <h2 id="rate-h" class="m-0 text-[2rem]">{formatCadCents(rate)} per kilometre</h2>
       <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
-      <p class="m-0">Measured one way from our lot at {dealership.address.street}, {dealership.address.city}, by the road route. HST is added.<Confirm note="How delivery distance is measured" /></p>
+      <p class="m-0">Charged one way, from the pick-up location to where the unit is going. HST is added.</p>
+      <p class="mt-3">This rate covers trailers and fifth wheels up to {maxWidthFt} ft wide and {maxLengthFt} ft long. Anything wider or longer, we quote.</p>
       <table class="mt-6 w-full border-collapse bg-white tabular">
         <caption class="pb-2 text-left font-semibold text-ink">What it works out to</caption>
         <thead>
@@ -49,8 +50,9 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'Delivery', path: '/deliver
       </div>
       <div class="rounded border border-rule bg-paper p-6">
         <h2 class="m-0 text-[1.5rem]">Park models and mobile homes</h2>
-        <p class="mt-2">These move on a licensed hauler with oversize permits. We arrange the move and quote it once we know both addresses.</p>
-        <a href="/sell-or-consign#consign" class="tap font-semibold">Moving one out of a park? See consignment</a>
+        <p class="mt-2">These are wider than {maxWidthFt} ft, so they move on a licensed hauler with oversize permits. We quote the move once we know both addresses.</p>
+        <p class="mt-2">Taking a mobile home or park model out of a park? Our sister business, {dealership.sibling.name}, does removals.</p>
+        <a href={siblingUrl('removal')} target="_blank" rel="noopener" class="tap font-semibold">Mobile home removal at {dealership.sibling.name}<span class="sr-only"> (opens in a new tab)</span></a>
       </div>
     </div>
   </section>
