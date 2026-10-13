@@ -8,13 +8,15 @@ Plan: `docs/plan.md` (§3g phases). Approved Oct 2, 2026.
 
 ## Blocked / waiting on James
 - [x] `main` created from `dev` at ed56551 (James, Oct 5)
-- [ ] Rae's answers go in `docs/confirm-answers.md`; then Claude applies them to the data files
+- [x] Rae's answers (Oct 8 Google Doc, vault `96a`) applied Oct 12; 42 items still open in `docs/confirm-report.md` (admin $499 vs $599, warranty provider, holidays, lawyer items, new units' specs/photos/stock numbers)
+- [ ] `interim` still shows the old hours (Sat 10–5, Sun by appointment) and no email: needs the Oct 12 hours (Sat 10–3 by appointment only, Sun closed) if it goes live
 - [x] Railway (Oct 5): `rvfarm-web` ← `dev` (review build) and `rvfarm-interim` ← `interim`, both live on `*.up.railway.app`. Domain stays untouched until Paul controls it (vault `92`)
 - [x] Docker image built and run locally (Oct 5): fixed the Caddy `@html` startup crash on dev and interim
 - [ ] Web3Forms access key: set `PUBLIC_WEB3FORMS_KEY` in a local `.env` and on Railway. Until then the form says "call us" instead of sending; "a test form reaches James's inbox" (Phase 1 acceptance) is NOT verified
-- [ ] 2006 Maxlite 25RS: its old-site page returns 410 Gone (probably sold); still listed with a confirm flag
-- [ ] Prices: 5 units now use the live old-site price (it changed since the Sept 17 audit); Stone Ridge page says $18,000, the old list says $22,900
-- [ ] Rae's `[confirm]` list (plan §5); hours on the interim page are one of four conflicting versions
+- [x] 2006 Maxlite 25RS: removed Oct 12 with the other units not on Rae's Oct 10 sheet
+- [x] Prices: the 8 units use the selling prices on Rae's Oct 10 sheet (Oct 12)
+- [ ] 4 new units (Avenger, Conquest, Laredo, Kingsport): photos, specs and stock numbers after photo day
+- [ ] Rae's remaining `[confirm]` items (`docs/confirm-report.md`)
 
 ## Completed
 - [x] Phase 3 — React-free inventory filter (LCP 2.84 → 1.90 s), print spec sheet, filter tests, code review with all 16 findings fixed + 6 regression tests (Oct 2–5)
