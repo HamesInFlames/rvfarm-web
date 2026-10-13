@@ -71,7 +71,7 @@ const site = Astro.site!;
     <p class="hidden print:block m-0 mb-2 text-sm">{new URL(unitPath(unit), site).href} · Call {dealership.phones.main} to check it’s still available.</p>
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="eyebrow m-0 text-red">{group.one} · Stock {unit.stockNumber}</p>
+        <p class="eyebrow m-0 text-red">{group.one}{unit.stockNumber && ` · Stock ${unit.stockNumber}`}</p>
         <h1 class="m-0 mt-1 text-[2rem] lg:text-[3rem]">{title}</h1>
         {specLine(unit) && <p class="m-0 mt-2 text-lead">{specLine(unit)}</p>}
         {REVIEW && unit.confirm.length > 0 && (
@@ -89,6 +89,11 @@ const site = Astro.site!;
     <div class="mt-6 grid gap-8 lg:grid-cols-12 print:grid-cols-2 print:gap-4">
       <div class="lg:col-span-8">
         <div class="print-photo"><Gallery photos={photos} title={title} transitionName={`unit-${unit.slug}`} /></div>
+        {photos.length === 0 && (
+          <p class="m-0 mt-4 rounded border-l-4 border-orange bg-paper p-4">
+            <strong>Just in.</strong> Photos and full specs are on the way. Call <a href={telHref(dealership.phones.main)} class="font-semibold tabular">{dealership.phones.main}</a> and we’ll answer anything you want to know, or book a time to see it.
+          </p>
+        )}
       </div>
       <aside aria-label="Price and contact" class="lg:col-span-4">
         <div class="lg:sticky lg:top-4">
@@ -159,7 +164,7 @@ const site = Astro.site!;
         <PaymentEstimator client:visible priceCad={price} aprPct={fees.estimator.exampleAprPct}
           termMonths={fees.estimator.termMonths} downCad={fees.estimator.downCad} frequency={fees.estimator.frequency as Frequency} />
         <noscript><p>{ESTIMATE_FOOTNOTE()}</p></noscript>
-        <Confirm note="Lender and example rate" />
+        <Confirm note="Example rate only. Lenders' real rates and terms stay off the site until the lawyer checks the credit-advertising rules" />
       </section>
     )}
 
@@ -171,7 +176,7 @@ const site = Astro.site!;
         <p class="mt-2"><a href={telHref(dealership.phones.main)} class="tap text-2xl font-semibold tabular">{dealership.phones.main}</a></p>
       </div>
       <div class="lg:col-span-8">
-        <LeadForm client:visible accessKey={formKey} subject={`Website: ${title} (${unit.stockNumber})`}
+        <LeadForm client:visible accessKey={formKey} subject={`Website: ${title}${unit.stockNumber ? ` (${unit.stockNumber})` : ''}`}
           redirectUrl={new URL('/thanks', import.meta.env.PUBLIC_SITE_ORIGIN || site).href} stockNumber={unit.stockNumber} unitTitle={title}
           topics={['A question', 'Book a viewing', 'Value my trade-in', 'Financing']} phoneDisplay={dealership.phones.main}
           messagePlaceholder="e.g. Can I see it Saturday morning?" privacyHref={routeExists('/privacy') ? '/privacy' : undefined} />
@@ -185,7 +190,7 @@ const site = Astro.site!;
         <ul class="m-0 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
           {similar.map((c) => <li class="flex"><UnitCard unit={c} review={REVIEW} /></li>)}
         </ul>
-        <p class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and admin fee; HST and the government plate fee extra. * {ESTIMATE_FOOTNOTE()}</p>
+        <p class="mt-4 text-[0.9375rem] text-bark-60">Prices include the PDI package and the admin and licensing fee; HST extra. * {ESTIMATE_FOOTNOTE()}</p>
         <p class="mt-2"><a href="/inventory" class="tap font-semibold">See all units</a></p>
       </section>
     )}

@@ -27,7 +27,10 @@ export default function UnitCard({ unit, review = false, headingLevel = 3, prior
             style={{ viewTransitionName: `unit-${unit.slug}` }}
             className={`h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02] ${sold ? 'grayscale' : ''}`} />
         ) : (
-          <div className="flex h-full items-center justify-center p-4 text-center text-bark-60">Photo coming</div>
+          <div className="flex h-full flex-col items-center justify-center gap-1 border-b border-dashed border-bark/40 p-4 text-center">
+            <span className="font-[family-name:var(--font-display)] text-xl font-bold text-ink">Just in</span>
+            <span className="text-[0.9375rem] text-bark-60">Photos coming soon</span>
+          </div>
         )}
         {status && <span className={`absolute left-2 top-2 rounded-sm px-2 py-0.5 text-sm font-semibold ${status.cls}`}>{status.label}</span>}
         {unit.photoCount > 1 && (
@@ -35,7 +38,7 @@ export default function UnitCard({ unit, review = false, headingLevel = 3, prior
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <p className="m-0 text-[0.9375rem] text-bark-60">{unit.typeLabel} · Stock {unit.stockNumber}</p>
+        <p className="m-0 text-[0.9375rem] text-bark-60">{unit.typeLabel}{unit.stockNumber ? ` · Stock ${unit.stockNumber}` : ''}</p>
         <H className="m-0 text-[1.375rem] leading-tight">
           <a href={unit.href} className="text-ink no-underline after:absolute after:inset-0 after:content-[''] hover:text-red focus-visible:outline-none">
             {unit.title}

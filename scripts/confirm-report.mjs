@@ -49,7 +49,7 @@ const lines = [
 let unitItems = 0;
 for (const u of inventory) {
   if (!u.confirm?.length) continue;
-  lines.push(`### ${u.year} ${u.make}${u.series ? ` ${u.series}` : ''} ${u.model} (${u.stockNumber})`);
+  lines.push(`### ${u.year} ${u.make}${u.series ? ` ${u.series}` : ''} ${u.model} (${u.stockNumber ?? 'no stock number yet'})`);
   for (const c of u.confirm) { lines.push(`- [ ] ${c}`); unitItems++; }
   lines.push('');
 }

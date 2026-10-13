@@ -63,9 +63,12 @@ export function towHint(u: Unit): string | null {
 // Watermarked photos written by scripts/photos.mjs.
 const photoModules = import.meta.glob<{ default: ImageMetadata }>('/src/assets/inventory/*/*.jpg', { eager: true });
 
+/** Photo folder under src/assets/inventory: the stock number, or the slug for units without one (scripts/photos.mjs). */
+export const photoDir = (u: Pick<Unit, 'stockNumber' | 'slug'>) => u.stockNumber ?? u.slug;
+
 export function unitPhotos(u: Unit): ImageMetadata[] {
   return u.photos
-    .map((f) => photoModules[`/src/assets/inventory/${u.stockNumber}/${f.replace(/\.(png|webp|jpeg)$/i, '.jpg')}`]?.default)
+    .map((f) => photoModules[`/src/assets/inventory/${photoDir(u)}/${f.replace(/\.(png|webp|jpeg)$/i, '.jpg')}`]?.default)
     .filter((m): m is ImageMetadata => Boolean(m));
 }
 
@@ -76,7 +79,7 @@ export interface CardData {
   title: string;
   typeLabel: string;
   typeGroup: string;
-  stockNumber: string;
+  stockNumber?: string;
   status: Unit['status'];
   specLine: string;
   make: string;
