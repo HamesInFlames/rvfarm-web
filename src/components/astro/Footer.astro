@@ -34,9 +34,7 @@ const d = dealership;
         <a class="tap mt-1 text-2xl font-semibold text-white no-underline hover:underline tabular font-[family-name:var(--font-display)]" href={telHref(d.phones.main)}>
           {d.phones.main}
         </a>
-        {d.email
-          ? <><br /><a class="text-sand underline" href={`mailto:${d.email}`}>{d.email}</a></>
-          : <Confirm note="Which email address to publish" />}
+        {d.email && <><br /><a class="tap text-sand underline decoration-sand/50 hover:text-white" href={`mailto:${d.email}`}>{d.email}</a></>}
       </address>
     </section>
 

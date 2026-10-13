@@ -3,6 +3,8 @@
 
 export type DayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 export type Hours = Record<DayKey, [string, string] | null>;
+/** Hours that are by appointment only (no walk-ins), e.g. { sat: ['10:00', '15:00'] }. Never counted as "open". */
+export type AppointmentHours = Partial<Record<DayKey, [string, string]>>;
 
 export const DAY_KEYS: DayKey[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 export const DAY_NAMES: Record<DayKey, string> = {
@@ -64,11 +66,20 @@ function nextOpening(hours: Hours, day: DayKey, minutes: number, fmt = formatTim
   return null;
 }
 
-export function openStatus(hours: Hours, now: Date, timeZone: string): OpenStatus {
+export function openStatus(hours: Hours, now: Date, timeZone: string, appointments: AppointmentHours = {}): OpenStatus {
   const { day, minutes } = localParts(now, timeZone);
   const span = hours[day];
   if (span && minutes >= toMinutes(span[0]) && minutes < toMinutes(span[1])) {
     return { open: true, text: `Open today until ${formatTime(span[1])}`, short: `Open until ${formatTimeShort(span[1])}` };
+  }
+  // Appointment-only hours: not open to walk-ins, so never shown as "open".
+  const appt = appointments[day];
+  if (appt && minutes >= toMinutes(appt[0]) && minutes < toMinutes(appt[1])) {
+    return {
+      open: false,
+      text: `By appointment only today, until ${formatTime(appt[1])} · no walk-ins`,
+      short: 'Appointment only',
+    };
   }
   const next = nextOpening(hours, day, minutes);
   const nextShort = nextOpening(hours, day, minutes, formatTimeShort);
@@ -79,19 +90,26 @@ export function openStatus(hours: Hours, now: Date, timeZone: string): OpenStatu
   };
 }
 
-/** Rows for an hours table, grouping consecutive days with the same hours: "Mon–Fri 9:00 AM–5:00 PM". */
-export function hoursRows(hours: Hours, closedNote: Partial<Record<DayKey, string>> = {}) {
+/**
+ * Rows for an hours table, grouping consecutive days with the same hours: "Mon–Fri 9:00 AM–5:00 PM".
+ * Appointment-only days get `appointment: true` and never merge with walk-in days.
+ */
+export function hoursRows(hours: Hours, closedNote: Partial<Record<DayKey, string>> = {}, appointments: AppointmentHours = {}) {
   const order: DayKey[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  const range = (s: [string, string]) => `${formatTime(s[0])}–${formatTime(s[1])}`;
   const label = (k: DayKey) => {
     const s = hours[k];
-    return s ? `${formatTime(s[0])}–${formatTime(s[1])}` : (closedNote[k] ?? 'Closed');
+    if (s) return { text: range(s), appointment: false };
+    const a = appointments[k];
+    if (a) return { text: range(a), appointment: true };
+    return { text: closedNote[k] ?? 'Closed', appointment: false };
   };
-  const rows: { days: DayKey[]; text: string }[] = [];
+  const rows: { days: DayKey[]; text: string; appointment: boolean }[] = [];
   for (const k of order) {
-    const text = label(k);
+    const { text, appointment } = label(k);
     const last = rows[rows.length - 1];
-    if (last && last.text === text) last.days.push(k);
-    else rows.push({ days: [k], text });
+    if (last && last.text === text && last.appointment === appointment) last.days.push(k);
+    else rows.push({ days: [k], text, appointment });
   }
   return rows.map((r) => ({
     days: r.days,
@@ -99,5 +117,6 @@ export function hoursRows(hours: Hours, closedNote: Partial<Record<DayKey, strin
       ? DAY_SHORT[r.days[0]]
       : `${DAY_SHORT[r.days[0]]}–${DAY_SHORT[r.days[r.days.length - 1]]}`,
     text: r.text,
+    appointment: r.appointment,
   }));
 }
