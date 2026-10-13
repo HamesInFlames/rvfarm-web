@@ -6,7 +6,6 @@ import dealership from '../../data/dealership.json';
 import { telHref } from '../../lib/format';
 import { footerNav, legalNav, routeExists } from '../../lib/site';
 import HoursTable from './HoursTable.astro';
-import Confirm from './Confirm.astro';
 
 interface Props { variant?: 'full' | 'interim' }
 const { variant = 'full' } = Astro.props;
@@ -69,7 +68,7 @@ const d = dealership;
 
   <div class:list={[{ 'border-t border-white/15': variant === 'full' }]}>
     <div class="wrap flex flex-wrap items-center gap-x-6 gap-y-2 py-5 text-[0.9375rem]">
-      <p class="m-0">© {year} {d.legalName}<Confirm note={'Registered name once "The" is dropped'} /></p>
+      <p class="m-0">© {year} {d.legalName}</p>
       {legal.length > 0 && (
         <ul class="flex flex-wrap gap-x-4 list-none m-0 p-0">
           {legal.map((i) => <li><a class="inline-flex min-h-11 items-center text-sand underline decoration-sand/40 hover:text-white" href={i.href}>{i.label}</a></li>)}

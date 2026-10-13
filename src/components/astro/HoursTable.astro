@@ -3,13 +3,14 @@
 import dealership from '../../data/dealership.json';
 import { hoursRows, type Hours, type AppointmentHours } from '../../lib/hours';
 import Confirm from './Confirm.astro';
+import { REVIEW } from '../../lib/site';
 
 interface Props { tone?: 'light' | 'dark'; caption?: string }
 const { tone = 'light', caption = 'Opening hours' } = Astro.props;
 const rows = hoursRows(dealership.hours as Hours, dealership.closedDayNote, dealership.appointmentHours as AppointmentHours);
 ---
 <table class="hours-table w-full max-w-sm border-collapse tabular" data-tz={dealership.timeZone}>
-  <caption class="text-left font-semibold pb-1">{caption}<Confirm note="Holiday hours (not answered Oct 8)" /></caption>
+  <caption class="text-left font-semibold pb-1">{caption}</caption>
   <tbody>
     {rows.map((r) => (
       <tr data-days={r.days.join(' ')} class:list={['border-b', tone === 'dark' ? 'border-white/20' : 'border-rule']}>
@@ -25,6 +26,7 @@ const rows = hoursRows(dealership.hours as Hours, dealership.closedDayNote, deal
   </tbody>
 </table>
 {dealership.holidayNote && <p class="mt-2">{dealership.holidayNote}</p>}
+{REVIEW && !dealership.holidayNote && <p class="mt-2 text-sm">Holiday hours<Confirm note="Holiday hours (not answered Oct 8). The weekday and Saturday hours above are confirmed" /></p>}
 
 <script>
   import { localParts } from '../../lib/hours';

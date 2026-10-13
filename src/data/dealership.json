@@ -1,6 +1,6 @@
 {
   "brandName": "RV Farm",
-  "legalName": "RV Farm",
+  "legalName": "The RV Farm",
   "tagline": "We're closer than you think!",
   "siteUrl": "https://rvfarm.ca",
   "description": "Used travel trailers, fifth wheels, park models and mobile homes at 1841 Hwy 7 in Concord, Ontario.",
@@ -58,7 +58,6 @@
     "phone": "905-738-1253"
   },
   "confirm": [
-    "legalName: registered name once \"The\" is dropped (filing expected the week of Oct 12, per Rae)",
     "siteUrl: Rae wants rvfarm.ca after launch (Oct 8); availability and price not checked, and James approves before buying",
     "hours: holiday hours not answered (Oct 8). Mon–Fri 9–5, Sat 10–3 by appointment only, Sun closed are confirmed",
     "social.facebook: Rae sent only a Facebook share link; the site keeps facebook.com/theRVfarm. Check it's the same Page",
