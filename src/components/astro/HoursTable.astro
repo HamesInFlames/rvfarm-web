@@ -1,20 +1,25 @@
 ---
 // Hours table from dealership.json; today's row is bolded in the browser (dealer time zone).
 import dealership from '../../data/dealership.json';
-import { hoursRows, type Hours } from '../../lib/hours';
+import { hoursRows, type Hours, type AppointmentHours } from '../../lib/hours';
 import Confirm from './Confirm.astro';
 
 interface Props { tone?: 'light' | 'dark'; caption?: string }
 const { tone = 'light', caption = 'Opening hours' } = Astro.props;
-const rows = hoursRows(dealership.hours as Hours, dealership.closedDayNote);
+const rows = hoursRows(dealership.hours as Hours, dealership.closedDayNote, dealership.appointmentHours as AppointmentHours);
 ---
 <table class="hours-table w-full max-w-sm border-collapse tabular" data-tz={dealership.timeZone}>
-  <caption class="text-left font-semibold pb-1">{caption}<Confirm note="Hours: four versions conflict" /></caption>
+  <caption class="text-left font-semibold pb-1">{caption}<Confirm note="Holiday hours (not answered Oct 8)" /></caption>
   <tbody>
     {rows.map((r) => (
       <tr data-days={r.days.join(' ')} class:list={['border-b', tone === 'dark' ? 'border-white/20' : 'border-rule']}>
-        <th scope="row" class="py-1.5 pr-4 text-left font-normal">{r.dayLabel}</th>
-        <td class="py-1.5 whitespace-nowrap">{r.text}</td>
+        <th scope="row" class="py-1.5 pr-4 text-left align-top font-normal whitespace-nowrap">{r.dayLabel}</th>
+        <td class="py-1.5 align-top">
+          <span class="whitespace-nowrap">{r.text}</span>
+          {r.appointment && (
+            <strong class:list={['block', tone === 'dark' ? 'text-white' : 'text-red']}>{dealership.appointmentNote}</strong>
+          )}
+        </td>
       </tr>
     ))}
   </tbody>
@@ -29,7 +34,7 @@ const rows = hoursRows(dealership.hours as Hours, dealership.closedDayNote);
       if (row.dataset.days!.split(' ').includes(day)) {
         row.classList.add('font-bold');
         row.querySelector('th')?.classList.replace('font-normal', 'font-bold');
-        row.querySelector('th')?.insertAdjacentHTML('beforeend', ' <span class="text-sm">(today)</span>');
+        row.querySelector('th')?.insertAdjacentHTML('beforeend', '<span class="block text-sm">(today)</span>');
       }
     }
   }

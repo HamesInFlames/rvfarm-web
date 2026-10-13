@@ -55,14 +55,14 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
 /** Product + Offer for a unit page. Price is the advertised (all-in, pre-HST) price. */
 export function unitJsonLd(u: {
   title: string; path: string; description: string; make: string; model: string; year: number;
-  stockNumber: string; priceCad?: number; status: string; imageUrls: string[];
+  stockNumber?: string; priceCad?: number; status: string; imageUrls: string[];
 }) {
   const url = new URL(u.path, dealership.siteUrl).href;
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: u.title,
-    sku: u.stockNumber,
+    ...(u.stockNumber ? { sku: u.stockNumber } : {}),
     description: u.description || u.title,
     brand: { '@type': 'Brand', name: u.make },
     model: u.model,

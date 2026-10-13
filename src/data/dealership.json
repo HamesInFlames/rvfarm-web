@@ -14,10 +14,9 @@
   },
   "phones": {
     "main": "905-605-7056",
-    "tollFree": null,
     "sms": null
   },
-  "email": null,
+  "email": "thervfarm@gmail.com",
   "timeZone": "America/Toronto",
   "hours": {
     "mon": ["09:00", "17:00"],
@@ -25,32 +24,34 @@
     "wed": ["09:00", "17:00"],
     "thu": ["09:00", "17:00"],
     "fri": ["09:00", "17:00"],
-    "sat": ["10:00", "17:00"],
+    "sat": null,
     "sun": null
   },
-  "closedDayNote": { "sun": "By appointment" },
+  "appointmentHours": { "sat": ["10:00", "15:00"] },
+  "appointmentNote": "By appointment only. No walk-ins.",
+  "closedDayNote": {},
   "holidayNote": "",
-  "memberships": [],
+  "memberships": ["Priority RV Network", "RVDA", "Camping Ontario"],
   "social": {
     "facebook": "https://www.facebook.com/theRVfarm",
-    "instagram": "https://www.instagram.com/theRVFarm",
-    "youtube": "https://www.youtube.com/@thervfarm"
+    "instagram": "https://www.instagram.com/thervfarm"
   },
   "sibling": {
     "name": "Vacations on Wheels",
     "what": "Service and parts",
     "url": "https://vacationsonwheels.ca",
+    "reviewUrl": "https://vow-web-production.up.railway.app",
+    "pages": {
+      "removal": "/park-home-removal",
+      "consign": "/consign"
+    },
     "phone": "905-738-1253"
   },
   "confirm": [
-    "legalName: registered name once \"The\" is dropped (lawyer filing)",
-    "siteUrl: launch domain rvfarm.ca vs thervfarm.ca (80 §4 vs vault CLAUDE.md)",
-    "phones.tollFree: is 1-855-844-0068 still live? Left out until confirmed",
-    "phones.sms: is there a text-capable line? The sticky bar shows Text only when set",
-    "email: which address to publish (none on the current site)",
-    "hours: four versions conflict; these are from the current RV Farm site (Mon–Fri 9–5, Sat 10–5, Sun by appointment)",
-    "memberships: Priority RV Network still current?",
-    "social: are these the accounts to link (Facebook theRVfarm, Instagram theRVFarm, YouTube @thervfarm)?",
-    "tagline: is \"We're closer than you think!\" final, and what does it refer to?"
+    "legalName: registered name once \"The\" is dropped (filing expected the week of Oct 12, per Rae)",
+    "siteUrl: Rae wants rvfarm.ca after launch (Oct 8); availability and price not checked, and James approves before buying",
+    "hours: holiday hours not answered (Oct 8). Mon–Fri 9–5, Sat 10–3 by appointment only, Sun closed are confirmed",
+    "social.facebook: Rae sent only a Facebook share link; the site keeps facebook.com/theRVfarm. Check it's the same Page",
+    "sibling: production links go to vacationsonwheels.ca's home page until the new VOW site launches; review builds link to the VOW review site's removal and consign pages"
   ]
 }

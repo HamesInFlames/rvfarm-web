@@ -22,7 +22,7 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
 <div class="rounded border border-rule bg-white p-5 lg:p-6">
   <div class="flex flex-wrap items-center gap-3">
     <span class:list={['rounded-sm px-2 py-0.5 text-sm font-semibold text-white print:border print:border-ink print:text-ink', status[1]]}>{status[0]}</span>
-    <span class="text-[0.9375rem] text-bark-60">Stock {unit.stockNumber}<Confirm note="Real stock number" /></span>
+    {unit.stockNumber && <span class="text-[0.9375rem] text-bark-60">Stock {unit.stockNumber}<Confirm note="Real stock number" /></span>}
   </div>
 
   {price !== undefined && !sold ? (
@@ -47,9 +47,9 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
           </tr>
         </tbody>
       </table>
-      <Confirm note="PDI package name and what's in it" />
+      <Confirm note="Admin fee: Rae $499 (Oct 8) vs Paul $599 (Oct 5); Paul to pick" />
 
-      <p class="m-0 mt-3 text-[0.9375rem]">Added at sale: HST (13%) and the government plate and permit fee ({formatCad(fees.plates.plateAndPermitCad)})<Confirm note="Are plates separate, or already in admin & licensing?" /></p>
+      <p class="m-0 mt-3 text-[0.9375rem]">Added at sale: HST (13%). Admin and licensing already covers the MTO and ServiceOntario fees, plates included.</p>
 
       {pay && pay.perPeriod > 0 && (
         <p class="m-0 mt-4">
@@ -61,8 +61,8 @@ const pricingHref = routeExists('/pricing') ? '/pricing' : null;
       <details class="mt-3 rounded border border-rule" open>
         <summary class="flex min-h-11 cursor-pointer items-center px-3 font-semibold">Optional extras (not in the price)</summary>
         <ul class="m-0 list-none px-3 pb-3 text-[0.9375rem]">
-          <li class="py-1">{fees.optional.warranty.label}: {formatCad(fees.optional.warranty.amountCadPerYear)} a year, up to {fees.optional.warranty.maxYears} years<Confirm note="Warranty provider, coverage, age limits" /></li>
-          <li class="py-1">{fees.optional.delivery.label}: {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, or pick it up here<Confirm note="Delivery rate" /></li>
+          <li class="py-1">{fees.optional.warranty.label}: {formatCad(fees.optional.warranty.amountCad)} for up to {fees.optional.warranty.maxYears} years, {fees.optional.warranty.coverage.toLowerCase()}, {formatCad(fees.optional.warranty.deductibleCad)} deductible<Confirm note="Warranty provider not named yet" /></li>
+          <li class="py-1">{fees.optional.delivery.label}: {formatCadCents(fees.optional.delivery.ratePerKmCad)} per km one way, or pick it up here</li>
         </ul>
         {pricingHref && <p class="m-0 px-3 pb-3 print:hidden"><a href={pricingHref} class="tap">How our prices work</a></p>}
       </details>

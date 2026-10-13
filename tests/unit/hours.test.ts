@@ -1,7 +1,7 @@
 // node --experimental-strip-types --test tests/unit/*.test.ts
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { openStatus, hoursRows, formatTime, type Hours } from '../../src/lib/hours.ts';
+import { openStatus, hoursRows, formatTime, type Hours, type AppointmentHours } from '../../src/lib/hours.ts';
 
 const hours: Hours = {
   mon: ['09:00', '17:00'], tue: ['09:00', '17:00'], wed: ['09:00', '17:00'],
@@ -61,5 +61,32 @@ test('hoursRows groups equal days and uses the closed note', () => {
   assert.deepEqual(
     hoursRows(hours, { sun: 'By appointment' }).map((r) => [r.dayLabel, r.text]),
     [['Mon–Fri', '9:00 AM–5:00 PM'], ['Sat', '10:00 AM–5:00 PM'], ['Sun', 'By appointment']],
+  );
+});
+
+// RV Farm's confirmed hours (Rae, Oct 8): Mon–Fri 9–5; Sat 10–3 by appointment only, no walk-ins; Sun closed.
+const rvFarm: Hours = { ...hours, sat: null };
+const appts: AppointmentHours = { sat: ['10:00', '15:00'] };
+
+test('Saturday appointment hours are never shown as open', () => {
+  // Oct 10, 2026 is a Saturday.
+  const s = openStatus(rvFarm, at('2026-10-10T11:00:00-04:00'), TZ, appts);
+  assert.equal(s.open, false);
+  assert.equal(s.text, 'By appointment only today, until 3:00 PM · no walk-ins');
+  assert.equal(s.short, 'Appointment only');
+});
+
+test('Friday evening skips appointment-only Saturday to Monday', () => {
+  assert.equal(openStatus(rvFarm, at('2026-10-09T18:00:00-04:00'), TZ, appts).text, 'Closed now · opens Mon 9:00 AM');
+});
+
+test('Saturday after 3 PM is closed until Monday', () => {
+  assert.equal(openStatus(rvFarm, at('2026-10-10T15:30:00-04:00'), TZ, appts).text, 'Closed now · opens Mon 9:00 AM');
+});
+
+test('hoursRows marks the appointment day and keeps Sunday closed', () => {
+  assert.deepEqual(
+    hoursRows(rvFarm, {}, appts).map((r) => [r.dayLabel, r.text, r.appointment]),
+    [['Mon–Fri', '9:00 AM–5:00 PM', false], ['Sat', '10:00 AM–3:00 PM', true], ['Sun', 'Closed', false]],
   );
 });

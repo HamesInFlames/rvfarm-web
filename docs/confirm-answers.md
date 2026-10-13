@@ -10,6 +10,8 @@ Fill-in sheet for Rae's (or Paul's) answers. The questions come from `docs/confi
 
 Status: **not yet sent to Rae** (James, Oct 5).
 
+**Oct 12 update:** Rae and Paul answered these questions on Oct 8 in the Google Doc "RV Farm & Vacations on Wheels: Questions for Rae and Paul", not on this sheet. The record is the vault's `96a-answers-2026-10-08.md`; the answers were applied to the site on Oct 12 (`tasks/status.md`). The unit table in section 6 is out of date: the site now lists the 8 units on Rae's Oct 10 sheet. What is still open is in `docs/confirm-report.md`.
+
 ---
 
 ## 1. Answer these first (they change prices or block launch)

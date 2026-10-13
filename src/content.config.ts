@@ -10,7 +10,8 @@ export const UNIT_TYPES = [
 
 const unit = z
   .object({
-    stockNumber: z.string().min(1),
+    // Optional: units new to the site may not have a stock number yet (shown without one, with a confirm note).
+    stockNumber: z.string().min(1).optional(),
     feedId: z.string().optional(),
     slug: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
     condition: z.enum(['used', 'new']),

@@ -1,7 +1,7 @@
 // Inventory photo pipeline (plan §3e, decision 2026-10-01 "watermark photos").
 // For every photo listed in src/data/inventory.json:
 //   source  = vault PHOTOS-TO-ENHANCE/enhanced/rv-farm/<file> if it exists, else PHOTOS-TO-ENHANCE/thervfarm/<file>
-//   output  = src/assets/inventory/<stockNumber>/<file>  (1,400 px long edge, JPEG q80, logo-v2 watermark)
+//   output  = src/assets/inventory/<stockNumber, or slug if none>/<file>  (1,400 px long edge, JPEG q80, logo-v2 watermark)
 // Originals in the vault are only read, never written. Re-runs skip outputs newer than their source; --force redoes all.
 // Usage: node scripts/photos.mjs [--force] [--vault "../Buro Enterprise"]  (PHOTOS_INVENTORY / PHOTOS_OUT override paths for previews)
 import { existsSync, mkdirSync, readFileSync, statSync, readdirSync, rmSync } from 'node:fs';
@@ -52,13 +52,15 @@ let made = 0, skipped = 0, missing = 0, enhanced = 0;
 const expected = new Map(); // stock → Set(files)
 
 for (const u of units) {
-  const dir = join(OUT, u.stockNumber);
+  if (!u.photos?.length) continue; // no photos yet: nothing to make, and any old folder is removed below
+  const key = u.stockNumber ?? u.slug; // same rule as photoDir() in src/lib/inventory.ts
+  const dir = join(OUT, key);
   mkdirSync(dir, { recursive: true });
-  expected.set(u.stockNumber, new Set(u.photos));
+  expected.set(key, new Set(u.photos));
   for (const file of u.photos) {
     const enhancedPath = join(SRC_ENHANCED, file);
     const src = existsSync(enhancedPath) ? enhancedPath : join(SRC_ORIGINAL, file);
-    if (!existsSync(src)) { console.warn(`missing: ${u.stockNumber} ${file}`); missing++; continue; }
+    if (!existsSync(src)) { console.warn(`missing: ${key} ${file}`); missing++; continue; }
     if (src === enhancedPath) enhanced++;
     const out = join(dir, file.replace(/\.(png|webp|jpeg)$/i, '.jpg'));
     if (!force && existsSync(out) && statSync(out).mtimeMs > statSync(src).mtimeMs) { skipped++; continue; }

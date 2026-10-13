@@ -16,9 +16,9 @@ const ad = example ? advertisedPrice(example.unitPriceCad!) : 0;
 const crumbs = [{ name: 'Home', path: '/' }, { name: 'How our prices work', path: '/pricing' }];
 ---
 <Base title="How our prices work" jsonLd={[breadcrumbJsonLd(crumbs)]}
-  description="Every RV Farm price includes the PDI package and admin fee. HST and government plate fees are added at sale. Warranty and delivery are optional.">
+  description="Every RV Farm price includes the PDI package and the admin and licensing fee. HST is added at sale. Warranty and delivery are optional.">
   <PageIntro crumbs={crumbs} title="How our prices work"
-    lead="The price on every unit is what you pay before tax. Nothing mandatory gets added at the desk except HST and the government’s plate fee." />
+    lead="The price on every unit is what you pay before tax. Nothing mandatory gets added at the desk except HST." />
 
   <section aria-labelledby="in-h" class="wrap grid gap-10 py-10 lg:grid-cols-12">
     <div class="lg:col-span-6">
@@ -30,13 +30,17 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'How our prices work', path
             <dt class="font-semibold">{f.label}: {formatCad(f.amountCad)}</dt>
             <dd class="m-0 mt-1">
               {f.label === fees.pdiPackage.label
-                ? 'Our pre-delivery inspection of the unit’s systems, a hands-on demonstration when you pick it up, and a starter kit.'
-                : 'Preparing the paperwork and registering the sale.'}
+                ? 'The pre-delivery inspection (PDI) of the unit’s systems, a starter kit, and a hands-on demo when you pick it up.'
+                : 'The paperwork for the sale, plus all the MTO and ServiceOntario fees for registering the unit, plates included.'}
             </dd>
           </div>
         ))}
       </dl>
-      <Confirm note="PDI package name and what's in it" />
+      <Confirm note="Admin fee: Rae $499 (Oct 8) vs Paul $599 (Oct 5); Paul to pick" />
+      <div id="as-is" class="mt-6 scroll-mt-4 rounded border-l-4 border-orange bg-white p-4">
+        <h3 class="m-0 text-xl">Buying a unit as-is</h3>
+        <p class="mt-2">You can buy any unit as-is, without the PDI package. The inspection, the demo and any work the unit needs are then your responsibility. If you want work done in our shop, we’ll quote it first.<Confirm note="Lawyer: how prices are shown when a unit can be bought as-is (item 7.8)" /></p>
+      </div>
     </div>
     {example && (
       <div class="lg:col-span-6">
@@ -50,11 +54,10 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'How our prices work', path
             ))}
             <tr class="border-b-2 border-ink"><th scope="row" class="px-3 py-2 text-left font-semibold">Advertised price</th><td class="px-3 py-2 text-right font-bold text-red">{formatCad(ad)}</td></tr>
             <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">HST (13%)</th><td class="px-3 py-2 text-right">{formatCadCents(hstOn(ad))}</td></tr>
-            <tr class="border-b border-rule"><th scope="row" class="px-3 py-2 text-left font-normal">Plates and permit (government fee)<Confirm note="Are plates separate, or already in admin & licensing?" /></th><td class="px-3 py-2 text-right">{formatCad(fees.plates.plateAndPermitCad)}</td></tr>
-            <tr><th scope="row" class="px-3 py-2 text-left font-semibold">Total if you take nothing optional</th><td class="px-3 py-2 text-right font-semibold">{formatCadCents(ad + hstOn(ad) + fees.plates.plateAndPermitCad)}</td></tr>
+            <tr><th scope="row" class="px-3 py-2 text-left font-semibold">Total if you take nothing optional</th><td class="px-3 py-2 text-right font-semibold">{formatCadCents(ad + hstOn(ad))}</td></tr>
           </tbody>
         </table>
-        <p class="mt-2 text-[0.9375rem] text-bark-60">If you only need a permit (not plates), the government fee is {formatCad(fees.plates.permitOnlyCad)}.</p>
+        <p class="mt-2 text-[0.9375rem] text-bark-60">Plates and the MTO and ServiceOntario fees are already in admin and licensing.</p>
       </div>
     )}
   </section>
@@ -67,11 +70,11 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'How our prices work', path
       <div class="mt-6 grid gap-6 md:grid-cols-2">
         <div class="rounded border border-rule bg-paper p-5">
           <h3 class="m-0 text-xl">{fees.optional.warranty.label}</h3>
-          <p class="mt-2">{formatCad(fees.optional.warranty.amountCadPerYear)} a year, for up to {fees.optional.warranty.maxYears} years. Ask us which units qualify and what it covers.<Confirm note="Warranty provider, coverage and age limits" /></p>
+          <p class="mt-2">{formatCad(fees.optional.warranty.amountCad)} for up to {fees.optional.warranty.maxYears} years of cover. {fees.optional.warranty.coverage}, with a {formatCad(fees.optional.warranty.deductibleCad)} deductible. Ask us which units qualify.<Confirm note="Warranty provider not named yet" /></p>
         </div>
         <div class="rounded border border-rule bg-paper p-5">
           <h3 class="m-0 text-xl">{fees.optional.delivery.label}</h3>
-          <p class="mt-2">{formatCadCents(fees.optional.delivery.ratePerKmCad)} per km, or pick it up here at no charge. <a href="/delivery">Delivery details</a><Confirm note="Delivery rate" /></p>
+          <p class="mt-2">{formatCadCents(fees.optional.delivery.ratePerKmCad)} per km one way, or pick it up here at no charge. <a href="/delivery">Delivery details</a></p>
         </div>
       </div>
     </div>
@@ -81,7 +84,7 @@ const crumbs = [{ name: 'Home', path: '/' }, { name: 'How our prices work', path
     <div>
       <h2 id="pay-h" class="m-0 text-[2rem]">Paying and deposits</h2>
       <span class="rule-orange mb-4 mt-2" aria-hidden="true"></span>
-      <p class="m-0">Funds are held for 10 days to clear, and every unit is paid in full before ownership is transferred.<Confirm note="10 business days or calendar days?" /></p>
+      <p class="m-0">Funds are held for 10 business days to clear, and every unit is paid in full before ownership is transferred.</p>
       <p class="mt-3">Want to hold a unit? Call us. Our written deposit terms are being finalized, and we’ll go over them with you before you pay anything.<Confirm note="Paul's deposit terms (lawyer reviewing)" /></p>
     </div>
     <div class="rounded border border-rule bg-paper p-6">

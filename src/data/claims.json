@@ -1,8 +1,6 @@
 {
-  "note": "Claims from the old sites that nobody has verified yet. They render only in review builds (PUBLIC_REVIEW=1) with a [confirm] chip, and never in production until \"confirmed\" is true.",
+  "note": "Claims about the business. Unconfirmed ones render only in review builds (PUBLIC_REVIEW=1) with a [confirm] chip, and never in production until \"confirmed\" is true. Memberships live in dealership.json.",
   "items": [
-    { "id": "family", "text": "Family owned and operated for over 25 years.", "confirmed": false },
-    { "id": "experience", "text": "100 years of combined experience in sales, service, buying, selling, trading and consigning.", "confirmed": false },
-    { "id": "priority", "text": "Member of the Priority RV Network.", "confirmed": false }
+    { "id": "family", "text": "Family owned and operated for over 25 years.", "confirmed": true, "source": "Rae, Oct 8 (vault 96a 1.10, 2.2.9)" }
   ]
 }
