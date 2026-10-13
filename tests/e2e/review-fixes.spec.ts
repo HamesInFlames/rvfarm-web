@@ -64,3 +64,24 @@ test('confirmed testimonials show in the production build (Rae, Oct 8)', async (
   await page.goto('/');
   await expect(page.locator('#reviews-h')).toHaveCount(1);
 });
+
+test('no rating markup in any JSON-LD, no rating shown, and /reviews links to write a Google review (Oct 13)', async ({ page }) => {
+  for (const path of builtPages()) {
+    await page.goto(path);
+    const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+    for (const b of blocks) {
+      expect(b, path).not.toMatch(/"aggregateRating"|"review"\s*:|"reviewRating"/);
+    }
+    await expect(page.locator('body'), path).not.toContainText(/2\.9|155 reviews|★/);
+  }
+  await page.goto('/');
+  const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join('\n');
+  expect(ld).toContain('"hasMap":"https://www.google.com/maps/place/?q=place_id:ChIJ48H-hqQ7K4gR1KyH2e7C1oE"');
+  expect(ld).toContain('"latitude":43.8027482');
+  await page.goto('/reviews');
+  await expect(page.locator('a[href="https://search.google.com/local/writereview?placeid=ChIJ48H-hqQ7K4gR1KyH2e7C1oE"]').first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /Read our reviews on Google/ })).toHaveAttribute('href', 'https://www.google.com/maps/place/?q=place_id:ChIJ48H-hqQ7K4gR1KyH2e7C1oE');
+  await page.goto('/contact');
+  await expect(page.getByRole('link', { name: /Get directions/ })).toHaveAttribute('href', /destination_place_id=ChIJ48H-hqQ7K4gR1KyH2e7C1oE/);
+  await expect(page.locator('iframe')).toHaveCount(0);
+});

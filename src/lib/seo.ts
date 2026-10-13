@@ -1,4 +1,6 @@
 // JSON-LD builders. NAP comes only from dealership.json.
+// Never add aggregateRating or review here: Google treats self-serving review markup as ineligible,
+// and the site shows no rating (plan D10). A regression test checks every page's JSON-LD.
 import dealership from '../data/dealership.json';
 import type { Hours, DayKey } from './hours';
 
@@ -27,6 +29,8 @@ export function localBusinessJsonLd() {
       postalCode: d.address.postal,
       addressCountry: d.address.country,
     },
+    geo: { '@type': 'GeoCoordinates', latitude: d.geo.lat, longitude: d.geo.lng },
+    hasMap: d.google.listingUrl,
     openingHoursSpecification: (Object.keys(hours) as DayKey[])
       .filter((k) => hours[k])
       .map((k) => ({

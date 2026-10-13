@@ -10,7 +10,17 @@
     "region": "ON",
     "postal": "L4K 1V4",
     "country": "CA",
-    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=1841+Highway+7%2C+Concord%2C+ON+L4K+1V4"
+    "mapsUrl": "https://www.google.com/maps/dir/?api=1&destination=The%20RV%20Farm%2C%201841%20Hwy%207%2C%20Concord%2C%20ON&destination_place_id=ChIJ48H-hqQ7K4gR1KyH2e7C1oE",
+    "plusCode": "RG37+3P Vaughan"
+  },
+  "geo": { "lat": 43.8027482, "lng": -79.4857234 },
+  "google": {
+    "listingName": "The RV Farm",
+    "placeId": "ChIJ48H-hqQ7K4gR1KyH2e7C1oE",
+    "cid": "9355879607016336596",
+    "listingUrl": "https://www.google.com/maps/place/?q=place_id:ChIJ48H-hqQ7K4gR1KyH2e7C1oE",
+    "reviewUrl": "https://search.google.com/local/writereview?placeid=ChIJ48H-hqQ7K4gR1KyH2e7C1oE",
+    "note": "Read from Google Maps / Places API on 2026-10-13: rating 2.9 from 155 reviews. Data note only: never render the rating or count, and no aggregateRating/review in JSON-LD (self-serving review markup is ineligible). Google review quotes beyond testimonials.json: James picks and pastes them himself with Rae's OK."
   },
   "phones": {
     "main": "905-605-7056",
